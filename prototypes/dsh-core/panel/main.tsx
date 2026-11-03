@@ -7,6 +7,7 @@ import {usePoll} from '../vendor/dsh/src/client/api.ts'
 import {zh} from '../vendor/dsh/src/client/locales.ts'
 import {request,openSession} from './host-api.ts'
 import {Conversation} from './conversation.tsx'
+import {Icon} from './icons.tsx'
 import {useDeploymentForm} from './deployment-form.ts'
 import sidebar from './upstream-harness/packages/client/ui-sidebar/src/client/SidebarRoot.module.css'
 const overrides={'title':'Codex Superagent','searchPlaceholder':'搜索任务、消息、ID','searchNoneGithub':'没有找到匹配的本地记录。',
@@ -74,7 +75,7 @@ function Shell(){
   const sessions=(p:any)=><>
     <button className={'sa-session '+(compose&&project===p.id&&!target?'sa-selected':'')} onClick={()=>choose(p.id)} title="由 Superagent 管理的主会话入口">{p.removed?p.description+' · ':''}Superagent 主 Session</button>
     {p.chats?.filter(c=>(showArchived||!c.archived)&&(c.archived||c.session_id||c.title!=='新会话'||target==='chat:'+c.id)).map(c=><div className="sa-row" key={c.id}>
-      <button className={'sa-session '+(compose&&project===p.id&&target==='chat:'+c.id?'sa-selected':'')} disabled={c.archived} onClick={()=>choose(p.id,'chat:'+c.id)} title={c.title}>◇ {c.title}{c.archived?'（已归档）':''}</button>
+      <button className={'sa-session '+(compose&&project===p.id&&target==='chat:'+c.id?'sa-selected':'')} disabled={c.archived} onClick={()=>choose(p.id,'chat:'+c.id)} title={c.title}>{c.title}{c.archived?'（已归档）':''}</button>
       <RowMenu label={'会话操作：'+c.title} action={c.archived?'取消归档':'归档会话'} disabled={busy} onClick={()=>archive(p,'chat:'+c.id,c.title,c.archived)}/>
     </div>)}
     {p.tickets.filter(t=>showArchived||!t.archived).map(t=><div className="sa-row" key={t.ticket_id}>
@@ -84,12 +85,12 @@ function Shell(){
   </>
   return <div className={'sa-shell '+(collapsed?'sa-collapsed':'')}>
     <aside className={sidebar.root+' sa-sidebar'} aria-label="工作区侧栏">
-      <div className={sidebar.logoRow}><strong className={sidebar.brandName}>{collapsed?'C':'Codex'} <small>HARNESS</small></strong><button className="sa-collapse" aria-label={collapsed?'展开侧边栏':'收起侧边栏'} onClick={()=>setCollapsed(!collapsed)}>☰</button></div>
-      <button className={sidebar.newSession} onClick={()=>void newChat()} disabled={busy} title="新建 Codex 对话">＋ {collapsed?'':'新会话'}</button>
-      <nav aria-label="全局面板"><button className={sidebar.panelRow+' '+(!compose?sidebar.panelActive:'')} aria-current={!compose?'page':undefined} onClick={()=>setCompose(false)}>⚒ {collapsed?'':'Superagent'}</button></nav>
-      {!collapsed&&<><div className="sa-workspace-heading"><span>工作区</span><button aria-label="添加工作区" onClick={()=>{setFailure('');setAdding(true)}}>＋</button></div>
+      <div className={sidebar.logoRow+' sa-brand-row'}><strong className={sidebar.brandName}>{collapsed?'C':'Codex'} <small>HARNESS</small></strong><button className="sa-collapse" aria-label={collapsed?'展开侧边栏':'收起侧边栏'} onClick={()=>setCollapsed(!collapsed)}><Icon name="sidebar"/></button></div>
+      <button className={sidebar.newSession+' sa-new-chat'} aria-label="新会话" onClick={()=>void newChat()} disabled={busy} title="新建 Codex 对话"><Icon name="compose"/>{collapsed?'':'新会话'}</button>
+      <nav aria-label="全局面板"><button className={sidebar.panelRow+' '+(!compose?sidebar.panelActive:'')} aria-label="Superagent" aria-current={!compose?'page':undefined} onClick={()=>setCompose(false)}><Icon name="team"/>{collapsed?'':'Superagent'}</button></nav>
+      {!collapsed&&<><div className="sa-workspace-heading"><span>工作区</span><button aria-label="添加工作区" onClick={()=>{setFailure('');setAdding(true)}}><Icon name="plus"/></button></div>
       <label className="sa-archive-filter"><input type="checkbox" checked={showArchived} onChange={e=>setShowArchived(e.target.checked)}/>显示已归档会话</label>
-      <div className="sa-workspace-list">{data.projects.filter(p=>!p.removed).map(p=><section key={p.id}><div className="sa-row"><button className="sa-project" disabled={busy} onClick={()=>void openWorkspace(p.id)} title={p.root??p.description}>▱ {p.description??p.id}</button>
+      <div className="sa-workspace-list">{data.projects.filter(p=>!p.removed).map(p=><section key={p.id}><div className="sa-row"><button className="sa-project" disabled={busy} onClick={()=>void openWorkspace(p.id)} title={p.root??p.description}><Icon name="folder"/>{p.description??p.id}</button>
         <RowMenu label={'工作区操作：'+p.description} action="删除工作区" disabled={busy} onClick={()=>{setFailure('');setRemoval({kind:'workspace',project:p.id,label:p.description})}}/>
       </div>{sessions(p)}</section>)}
       {data.projects.some(p=>p.removed)&&<section aria-label="未分组"><div className="sa-workspace-heading">未分组</div>{data.projects.filter(p=>p.removed).map(p=><section key={p.id}>{sessions(p)}<button className="sa-restore-workspace" disabled={busy} onClick={()=>void run(()=>request('/api/workspaces/remove',{project:p.id,removed:false}))}>恢复工作区：{p.description}</button></section>)}</section>}
