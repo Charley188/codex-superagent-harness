@@ -8,20 +8,35 @@ export class Chats{
   if(host.runtime.store.get('sa.chat.budget')===undefined)host.runtime.store.set('sa.chat.budget',24)
   this.db.exec(`CREATE TABLE IF NOT EXISTS sa_chat(id TEXT PRIMARY KEY,project TEXT NOT NULL,title TEXT NOT NULL,session_id TEXT,created_at TEXT NOT NULL);
    CREATE TABLE IF NOT EXISTS sa_chat_message(seq INTEGER PRIMARY KEY,id TEXT UNIQUE NOT NULL,chat TEXT NOT NULL,role TEXT NOT NULL,text TEXT NOT NULL,processed INTEGER DEFAULT 0);
-   CREATE TABLE IF NOT EXISTS sa_chat_call(id TEXT PRIMARY KEY,chat TEXT NOT NULL,state TEXT NOT NULL,request TEXT NOT NULL,request_hash TEXT NOT NULL,response TEXT,error TEXT);`)
+   CREATE TABLE IF NOT EXISTS sa_chat_call(id TEXT PRIMARY KEY,chat TEXT NOT NULL,state TEXT NOT NULL,request TEXT NOT NULL,request_hash TEXT NOT NULL,response TEXT,error TEXT);
+   CREATE TABLE IF NOT EXISTS sa_chat_archive(chat TEXT PRIMARY KEY,at TEXT NOT NULL);`)
  }
  own(project,id){this.host.agent.project(project);const row=this.db.prepare('SELECT * FROM sa_chat WHERE id=? AND project=?').get(id,project);require(row,'Conversation outside project');return row}
- list(project){this.host.agent.project(project);return this.db.prepare('SELECT * FROM sa_chat WHERE project=? ORDER BY rowid DESC').all(project)}
+ archived(id){return !!this.db.prepare('SELECT 1 FROM sa_chat_archive WHERE chat=?').get(id)}
+ list(project){this.host.agent.project(project);return this.db.prepare('SELECT * FROM sa_chat WHERE project=? ORDER BY rowid DESC').all(project).map(row=>({...row,archived:this.archived(row.id)}))}
+ archive(project,id,archived){
+  this.own(project,id);require(typeof archived==='boolean','Boolean required')
+  const active=this.db.prepare("SELECT id FROM sa_chat_call WHERE chat=? AND state IN ('running','uncertain')").all(id)
+  require(archived||!active.length,'会话仍在停止或等待核对，结束后才能取消归档。')
+  this.host.runtime.store.atomic(()=>{
+   if(archived){this.db.prepare('INSERT OR REPLACE INTO sa_chat_archive VALUES (?,?)').run(id,new Date().toISOString());this.db.prepare('UPDATE sa_chat_message SET processed=1 WHERE chat=?').run(id);this.db.prepare("UPDATE sa_chat_call SET state='reconciled' WHERE chat=? AND state='failed'").run(id)}
+   else this.db.prepare('DELETE FROM sa_chat_archive WHERE chat=?').run(id)
+   const nav=this.host.runtime.store.get('sa.ui.navigation');if(archived&&nav?.target==='chat:'+id)this.host.runtime.store.set('sa.ui.navigation',null)
+   this.host.runtime.audit({type:'human.chat.archive',project,chat:id,archived})
+  })
+  if(archived)for(const row of active)this.host.control.cancel(row.id)
+  return {archived,stopping:archived&&active.length>0}
+ }
  get budget(){return this.host.runtime.store.get('sa.chat.budget')}
  set budget(value){this.host.runtime.store.set('sa.chat.budget',value)}
  create({project,title='新会话'}){this.host.agent.project(project);require(typeof title==='string'&&title.trim().length>0&&title.length<=100,'Invalid conversation title');
   return this.host.runtime.store.atomic(()=>{
-   if(title==='新会话'){const blank=this.db.prepare("SELECT id FROM sa_chat WHERE project=? AND title='新会话' AND session_id IS NULL AND NOT EXISTS (SELECT 1 FROM sa_chat_message m WHERE m.chat=sa_chat.id) ORDER BY rowid LIMIT 1").get(project);if(blank)return {id:blank.id,project}}
+   if(title==='新会话'){const blank=this.db.prepare("SELECT id FROM sa_chat WHERE project=? AND title='新会话' AND session_id IS NULL AND NOT EXISTS (SELECT 1 FROM sa_chat_archive a WHERE a.chat=sa_chat.id) AND NOT EXISTS (SELECT 1 FROM sa_chat_message m WHERE m.chat=sa_chat.id) ORDER BY rowid LIMIT 1").get(project);if(blank)return {id:blank.id,project}}
    const id=randomUUID();this.db.prepare('INSERT INTO sa_chat VALUES (?,?,?,NULL,?)').run(id,project,title.trim(),new Date().toISOString());return {id,project}
   })
  }
  receive({project,chat,id=randomUUID(),text}){
-  const row=this.own(project,chat);require(typeof text==='string'&&text.trim()&&text.length<=4000,'Message must contain 1..4000 characters')
+  const row=this.own(project,chat);require(!this.archived(chat),'请先取消归档再发送消息。');require(typeof text==='string'&&text.trim()&&text.length<=4000,'Message must contain 1..4000 characters')
   return this.host.runtime.store.atomic(()=>{
    const prior=this.db.prepare('SELECT * FROM sa_chat_message WHERE id=?').get(id)
    if(prior){require(prior.chat===chat&&prior.text===text&&prior.role==='user','Message ID collision');return {id}}
@@ -42,7 +57,7 @@ export class Chats{
   require(result.request_id===row.id&&result.request_hash===row.request_hash,'Chat receipt identity mismatch')
   return this.host.runtime.store.atomic(()=>{
    if(result.status!=='completed'){
-    this.db.prepare("UPDATE sa_chat_call SET state='failed',response=?,error=? WHERE id=?").run(JSON.stringify(result),result.error??'Conversation failed',row.id)
+    this.db.prepare('UPDATE sa_chat_call SET state=?,response=?,error=? WHERE id=?').run(this.archived(row.chat)?'reconciled':'failed',JSON.stringify(result),result.error??'Conversation failed',row.id)
     // A terminal failed call is visible and held; explicit retry is required.
     return
    }
@@ -63,7 +78,7 @@ export class Chats{
     else this.db.prepare("UPDATE sa_chat_call SET state='uncertain' WHERE id=?").run(row.id)
    }
    if(this.budget<=0)return
-   const head=this.db.prepare("SELECT m.chat FROM sa_chat_message m WHERE m.role='user' AND m.processed=0 AND m.chat NOT IN (SELECT chat FROM sa_chat_call WHERE state IN ('running','uncertain','failed','invalid')) ORDER BY seq LIMIT 1").get()
+   const head=this.db.prepare("SELECT m.chat FROM sa_chat_message m WHERE m.role='user' AND m.processed=0 AND m.chat NOT IN (SELECT chat FROM sa_chat_archive) AND m.chat NOT IN (SELECT chat FROM sa_chat_call WHERE state IN ('running','uncertain','failed','invalid')) ORDER BY seq LIMIT 1").get()
    if(!head)return
    const chat=this.db.prepare('SELECT * FROM sa_chat WHERE id=?').get(head.chat)
    const rows=this.db.prepare('SELECT id,text FROM sa_chat_message WHERE chat=? AND processed=0 ORDER BY seq LIMIT 12').all(chat.id)
@@ -74,6 +89,6 @@ export class Chats{
    catch(error){this.db.prepare("UPDATE sa_chat_call SET state='uncertain',error=? WHERE id=?").run(String(error),id)}
   }finally{this.busy=false}
  }
- retry(project,id){this.own(project,id);const rows=this.db.prepare("SELECT * FROM sa_chat_call WHERE chat=? AND state='failed'").all(id);require(rows.length,'No confirmed failed turn to retry');for(const row of rows)this.db.prepare("UPDATE sa_chat_call SET state='reconciled' WHERE id=?").run(row.id)}
+ retry(project,id){this.own(project,id);require(!this.archived(id),'请先取消归档。');const rows=this.db.prepare("SELECT * FROM sa_chat_call WHERE chat=? AND state='failed'").all(id);require(rows.length,'No confirmed failed turn to retry');for(const row of rows)this.db.prepare("UPDATE sa_chat_call SET state='reconciled' WHERE id=?").run(row.id)}
  cancel(){for(const row of this.db.prepare("SELECT id FROM sa_chat_call WHERE state IN ('running','uncertain')").all())this.host.control.cancel(row.id)}
 }

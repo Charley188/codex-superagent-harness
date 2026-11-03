@@ -15,6 +15,8 @@ export function attachProjects(agent){
     require(typeof root==='string'&&isAbsolute(root),'请输入工作文件夹的绝对路径')
     const canonical=realpathSync(root);require(statSync(canonical).isDirectory(),'工作路径必须是文件夹')
     require(canonical!==parse(canonical).root,'不能把整个磁盘作为项目')
+    const removed=agent.store.get('sa.ui.removedWorkspaces')??[],existing=agent.projects.find(p=>p.root===canonical&&removed.includes(p.id))
+    if(existing){agent.store.atomic(()=>{agent.store.set('sa.ui.removedWorkspaces',removed.filter(id=>id!==existing.id));agent.runtime.audit({type:'human.workspace.restore',project:existing.id})});return {id:existing.id,name:existing.description,root:existing.root,restored:true}}
     const base=fileURLToPath(new URL('../../../',import.meta.url)),config=JSON.parse(readFileSync(join(base,'config.local.json'),'utf8'))
     const forbidden=[base,...Object.values(config.repositories).map(r=>r.root)]
     require(!forbidden.some(p=>beneath(canonical,resolve(p))||beneath(resolve(p),canonical)),'该目录与框架或已登记资料范围重叠，请选择独立项目文件夹')

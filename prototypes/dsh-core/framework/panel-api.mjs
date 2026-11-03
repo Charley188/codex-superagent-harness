@@ -12,6 +12,7 @@ import { randomUUID } from 'node:crypto'
 import {readFileSync} from 'node:fs'
 import {join} from 'node:path'
 import {LIMITS} from '../vendor/dsh/src/limits.ts'
+import {DEFAULT_WORKER_TIMEOUT_SECONDS,validateWorkerTimeout} from './execution-settings.mjs'
 
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const integer=(value,fallback,max)=>{const n=Number(value??fallback);require(Number.isInteger(n)&&n>=0&&n<=max,'Invalid page range');return n}
@@ -19,8 +20,8 @@ export function panelApi(host) {
   const {runtime,agent,directory}=host,store=runtime.store
   agent.hostDirectory=directory
   const versions=new Versions(store,'codex.panel.settings.revision',family('codex.panel.settings.version:'))
-  const initial={maxWorkers:runtime.capacity}
-  const settings=()=>versions.current()??{revision:0,value:initial,savedAt:null}
+  const initial={maxWorkers:runtime.capacity,workerTimeoutSeconds:DEFAULT_WORKER_TIMEOUT_SECONDS}
+  const settings=()=>{const current=versions.current()??{revision:0,value:initial,savedAt:null};return {...current,value:{...initial,...current.value}}}
   if(versions.current())runtime.capacity=settings().value.maxWorkers
   const title={zh:'本地对话',en:'Local conversation'}
   const sources={instances:()=>[{id:'local',kind:'local',installed:true,enabled:true,config:{}}],
@@ -136,9 +137,10 @@ export function panelApi(host) {
         sessions:agent.projects.map(p=>({project:p.id,id:store.get('sa.session.'+p.id)??''}))}
       if(method==='PUT'&&path==='codex/runtime')return store.atomic(()=>{
         if(value.revision!==versions.revision())throw Object.assign(Error('设置已被其他页面修改，请合并最新版本后保存。'),{status:409})
-        require(value.value&&Object.keys(value.value).join(',')==='maxWorkers','Unknown runtime settings')
+        require(value.value&&Object.hasOwn(value.value,'maxWorkers')&&Object.keys(value.value).every(k=>['maxWorkers','workerTimeoutSeconds'].includes(k)),'Unknown runtime settings')
         require(Number.isInteger(value.value.maxWorkers)&&value.value.maxWorkers>=LIMITS.maxWorkers.min&&value.value.maxWorkers<=LIMITS.maxWorkers.max,'Worker 并发必须为 1–16 的整数')
-        const saved=versions.save(revision=>({revision,value:value.value,savedAt:new Date().toISOString()}))
+        const next={...settings().value,...value.value};validateWorkerTimeout(next.workerTimeoutSeconds)
+        const saved=versions.save(revision=>({revision,value:next,savedAt:new Date().toISOString()}))
         runtime.capacity=saved.value.maxWorkers;runtime.audit({type:'human.settings',...saved})
         return {revision:saved.revision,restarting:false}
       })

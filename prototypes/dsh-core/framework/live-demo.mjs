@@ -9,7 +9,7 @@ const fingerprint=sourceFingerprint()
 const directory=join(base,'state/dsh-core/framework-e2e',randomUUID())
 const projectFolder=mkdtempSync(join(process.env.LOCALAPPDATA,'Temp','sa-project-live-'))
 initialize(directory);let host=openRuntime(directory),active=0,peak=0
-panelApi(host)('PUT','codex/runtime',new URLSearchParams(),{revision:0,value:{maxWorkers:4}})
+panelApi(host)('PUT','codex/runtime',new URLSearchParams(),{revision:0,value:{maxWorkers:4,workerTimeoutSeconds:1800}})
 const log=value=>console.log(JSON.stringify(value))
 log({directory})
 try {
@@ -22,6 +22,7 @@ try {
   assert.equal(await agent.routerOnce(),'applied');assert.equal(agent.tickets('synthetic').length,4);log({stage:'router-delegated',tickets:4})
   await agent.workersOnce();assert.equal(host.runtime.turns().length,4);assert.ok(host.runtime.turns().every(t=>t.state==='completed'),JSON.stringify(host.runtime.turns().map(t=>({state:t.state,error:t.error,result:t.result}))))
   assert.equal(peak,4);assert.equal(await agent.routerOnce(),'applied');log({stage:'parallel-workers',peak})
+  assert(host.runtime.turns().every(t=>t.request.worker_timeout_seconds===1800),'Saved timeout did not reach real Worker requests')
   assert(host.runtime.turns().every(t=>t.result.report.summary.includes('SETTINGS_PROMPT_52')),'Configured Worker prompt did not reach real turns')
   for(const section of ['communication','scope','delivery']){
     const expected=agent.prompts.current().config[section];assert(expected.trim().length>500)
@@ -69,6 +70,7 @@ try {
   const before=host.runtime.turns().map(t=>t.id),calls=host.runtime.store.db.prepare('SELECT count(*) n FROM sa_call').get().n
   await host.runtime.close();host=openRuntime(directory);await host.runtime.recover();await host.agent.recoverRouter()
   assert.equal(host.runtime.capacity,4,'Saved concurrency must survive a host restart without the panel')
+  const settingsSnapshot={ticket_id:'none'};host.runtime.enrichRequest(settingsSnapshot);assert.equal(settingsSnapshot.worker_timeout_seconds,1800)
   assert.deepEqual(host.runtime.turns().map(t=>t.id),before);assert.equal(host.runtime.store.db.prepare('SELECT count(*) n FROM sa_call').get().n,calls)
   assert.equal(host.agent.project(created.id).root,projectFolder)
   assert.equal(sourceFingerprint(),fingerprint,'Source changed during validation')

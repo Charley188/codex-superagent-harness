@@ -9,6 +9,7 @@ import { Jobs } from './jobs.mjs'
 import { Watchdog } from './watchdog.mjs'
 import { latestAssignment } from '../vendor/dsh/src/core/index.ts'
 import { require } from './contracts.mjs'
+import {executionSettings} from './execution-settings.mjs'
 export const base=fileURLToPath(new URL('../../../',import.meta.url))
 export const defaultDirectory=join(base,'state/dsh-core/framework-local')
 export function ownedDirectory(directory) {
@@ -46,6 +47,7 @@ export function openRuntime(directory=defaultDirectory, overrides={}) {
     const enrichRequest=runtime.enrichRequest
     runtime.enrichRequest=request=>{
       enrichRequest?.(request)
+      request.worker_timeout_seconds=executionSettings(runtime.store,runtime.capacity).workerTimeoutSeconds
       const scope=runtime.store.db.prepare('SELECT project FROM sa_ticket WHERE ticket_id=?').get(request.ticket_id)
       request.collaborators=scope?agent.tickets(scope.project).filter(t=>t.ticket_id!==request.ticket_id&&!t.ended).slice(-16).map(t=>({ticket_id:t.ticket_id,title:t.title})):[]
     }

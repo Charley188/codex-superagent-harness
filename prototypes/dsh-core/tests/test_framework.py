@@ -11,6 +11,7 @@ import sys
 import time
 import unittest
 import uuid
+from unittest.mock import patch
 
 HERE=Path(__file__).resolve().parents[1];BASE=HERE.parents[1]
 sys.path.insert(0,str(HERE/'framework'))
@@ -31,8 +32,26 @@ def alive(pid):
 
 class JobTests(unittest.TestCase):
     def test_timeout_is_distinguished_from_generic_worker_failure(self):
+        self.assertEqual(execution_worker.worker_timeout({}), 1200)
+        self.assertEqual(execution_worker.worker_timeout({'worker_timeout_seconds': 3600}), 3600)
+        for value in [True, 0, 7201, '1200', 1.5]:
+            with self.assertRaises(ValueError):
+                execution_worker.worker_timeout({'worker_timeout_seconds': value})
         self.assertIn('120',execution_worker.turn_failure({'stop_reason':'timeout'},120))
         self.assertIn('已取消',execution_worker.turn_failure({'stop_reason':'cancelled'},120))
+    def test_worker_passes_snapshot_timeout_to_actual_app_server_boundary(self):
+        source=self.root/'fixture';source.mkdir();(source/'x.txt').write_text('synthetic',encoding='utf-8')
+        folder=self.root/'turns'/str(uuid.uuid4());folder.mkdir(parents=True);(folder/'heartbeat').touch()
+        request={'turn_id':folder.name,'ticket_id':'a'*32,'assignment_id':'b'*32,'session_id':None,
+                 'worker_timeout_seconds':3600,'inputs':[],'origin':{},
+                 'contract':{'repo_id':'synthetic','permission':'read-only','inputs':[{'path':'x.txt','sha256':hashlib.sha256(b'synthetic').hexdigest()}]}}
+        path=folder/'request.json';path.write_text(json.dumps(request))
+        config={'timeout_seconds':120,'repositories':{'synthetic':{'root':str(source),'allow_model_review':True}}}
+        result={'returncode':1,'session_id':None,'turn_completed':False,'turn_failed':False,'event_error':False,'stop_reason':'timeout'}
+        with patch.object(execution_worker,'gate',return_value=(config,{'executable':'codex'})),patch.object(execution_worker.app_server,'run',return_value=result) as call:
+            execution_worker.run(path)
+        self.assertEqual(call.call_args.args[7],3600)
+        self.assertIn('3600',json.loads((folder/'result.json').read_text(encoding='utf-8'))['error'])
     def test_writer_conflict_requires_terminal_pre_turn_evidence(self):
         folder=BASE/'state/dsh-core/process-tests'/str(uuid.uuid4());folder.mkdir(parents=True)
         try:

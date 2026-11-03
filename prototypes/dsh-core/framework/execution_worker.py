@@ -19,8 +19,14 @@ import prompt_snapshot
 def workspace_fingerprint():
     return hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
 
+def worker_timeout(request):
+    # A per-turn immutable snapshot; Router and compatibility probes keep their own limits.
+    value = request.get('worker_timeout_seconds', 1200)
+    require(type(value) is int and 60 <= value <= 7200, 'Invalid Worker execution timeout')
+    return value
+
 def turn_failure(result, timeout):
-    if result.get('stop_reason')=='timeout': return 'Worker 执行超过 '+str(timeout)+' 秒时限，已停止；可缩小任务范围后重试。'
+    if result.get('stop_reason')=='timeout': return 'Worker 执行超过 '+str(timeout)+' 秒时限，已停止；可在“设置 → 执行”调整单次执行时限，再重试此工单。'
     if result.get('stop_reason')=='cancelled': return 'Worker 执行已取消。'
     if result.get('stop_reason')=='lease_lost': return 'Worker 因宿主心跳失效停止。'
     return 'Worker 回合未正常完成，请检查执行记录。'
@@ -50,7 +56,7 @@ def run(path):
     path=path.resolve(); folder=path.parent
     require(path.is_relative_to((BASE/'state/dsh-core').resolve()), 'Worker outside owned runtime')
     request=load(path); require(str(uuid.UUID(request['turn_id']))==folder.name, 'Invalid turn ID')
-    config, capability=gate(); contract=request['contract']
+    config, capability=gate(); contract=request['contract']; timeout=worker_timeout(request)
     repo=repository(config,path.parents[2],contract['repo_id'])
     require(repo and repo.get('allow_model_review') is True, 'Project model transfer not enabled')
     require(contract['permission'] in ('read-only','artifact-write','workspace-write'), 'Invalid worker permission')
@@ -96,14 +102,14 @@ def run(path):
     require(heartbeat(),'Expired execution lease')
     with (folder/'launched.json').open('x',encoding='utf-8') as f: json.dump({'at':time.time()},f)
     if contract['permission']=='workspace-write':
-        result=adapter.run_process(args,workspace,folder,prompt,config['timeout_seconds'],heartbeat=heartbeat,cancel=lambda:(folder/'cancel').exists())
+        result=adapter.run_process(args,workspace,folder,prompt,timeout,heartbeat=heartbeat,cancel=lambda:(folder/'cancel').exists())
     else:
-        result=app_server.run(capability,folder,folder,prompt,schema,output,request['session_id'],config['timeout_seconds'],heartbeat=heartbeat,cancel=lambda:(folder/'cancel').exists())
+        result=app_server.run(capability,folder,folder,prompt,schema,output,request['session_id'],timeout,heartbeat=heartbeat,cancel=lambda:(folder/'cancel').exists())
     response={k:request[k] for k in ('ticket_id','assignment_id','turn_id')}
     response.update(request_hash=hashlib.sha256(path.read_bytes()).hexdigest(),session_id=result['session_id'])
     try:
         require(request['session_id'] is None or request['session_id']==result['session_id'], 'Worker session changed')
-        require(result['returncode']==0 and result['turn_completed'] and not result['turn_failed'] and not result['event_error'] and result['stop_reason'] is None,turn_failure(result,config['timeout_seconds']))
+        require(result['returncode']==0 and result['turn_completed'] and not result['turn_failed'] and not result['event_error'] and result['stop_reason'] is None,turn_failure(result,timeout))
         value=load(output); require(set(value)=={'report','files','messages'} and isinstance(value['files'],list) and len(value['files'])<=20,'Invalid generated artifact bundle')
         report=validate_report(value['report'],request['ticket_id'],request['turn_id'],contract['inputs'])
         require(isinstance(value['messages'],list) and len(value['messages'])<=4,'Too many peer messages')

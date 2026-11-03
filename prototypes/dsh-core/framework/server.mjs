@@ -10,6 +10,7 @@ import {atomicJson} from './atomic-json.mjs'
 import {createFolderPicker} from './folder-picker.mjs'
 import {harnessApi} from './harness-api.mjs'
 import {Chats} from './chats.mjs'
+import {sidebarState} from './sidebar-state.mjs'
 
 export async function serve(host,{port=0,pump=true,monitor=true,writeMonitor=atomicJson,folderPicker=createFolderPicker()}={}) {
   const {directory,runtime,agent,jobs,watchdog,control}=host
@@ -21,6 +22,7 @@ export async function serve(host,{port=0,pump=true,monitor=true,writeMonitor=ato
   ].map(([route,path])=>[route,readFileSync(new URL(path,import.meta.url))]))
   const panel=panelApi(host)
   const chats=host.chats=new Chats(host)
+  const sidebar=sidebarState(host)
   const harness=harnessApi(host)
   const token=randomBytes(32).toString('hex');let closing=false, timer, heartbeatTimer, child, childEnded, busy=new Set(),lastError=null
   let closingWork, httpClose, closedStatus, phase='running', attention=0
@@ -90,7 +92,7 @@ export async function serve(host,{port=0,pump=true,monitor=true,writeMonitor=ato
       if(req.method==='GET' && req.url==='/api/status') {
         if(closedStatus){json(200,{...closedStatus,lifecycle:lifecycle()});return}
         const status=agent.status()
-        json(200,{...status,navigation:runtime.store.get('sa.ui.navigation')??null,projects:status.projects.map(p=>({...p,chats:chats.list(p.id)})),lifecycle:lifecycle(),last_error:lastError,budgets:{worker:runtime.remaining,router:agent.controlBudget,watchdog:watchdog.budget},watchdog:runtime.store.db.prepare('SELECT id,project,state,error,response FROM sa_watch ORDER BY rowid DESC LIMIT 4').all(),
+        json(200,{...status,navigation:runtime.store.get('sa.ui.navigation')??null,projects:status.projects.map(p=>sidebar.project(p)),lifecycle:lifecycle(),last_error:lastError,budgets:{worker:runtime.remaining,router:agent.controlBudget,watchdog:watchdog.budget},watchdog:runtime.store.db.prepare('SELECT id,project,state,error,response FROM sa_watch ORDER BY rowid DESC LIMIT 4').all(),
           monitor:monitorStatus()});return
       }
       require(req.method==='POST' && req.headers['content-type']==='application/json','JSON POST required')
@@ -112,10 +114,12 @@ export async function serve(host,{port=0,pump=true,monitor=true,writeMonitor=ato
       else if(req.url==='/api/chats')json(200,chats.create(value))
       else if(req.url==='/api/chats/message')json(200,chats.receive(value))
       else if(req.url==='/api/chats/retry'){chats.retry(value.project,value.chat);json(200,{retried:true})}
+      else if(req.url==='/api/workspaces/remove')json(200,sidebar.workspace(value))
+      else if(req.url==='/api/conversations/archive')json(200,sidebar.archive(value))
       else if(req.url==='/api/navigation'){
         agent.project(value.project);require(typeof value.target==='string'&&typeof value.compose==='boolean','Invalid navigation')
-        if(value.target.startsWith('chat:'))chats.own(value.project,value.target.slice(5))
-        else if(value.target)agent.owns(value.project,value.target)
+        if(value.target.startsWith('chat:')){chats.own(value.project,value.target.slice(5));require(!chats.archived(value.target.slice(5)),'Conversation is archived')}
+        else if(value.target){agent.owns(value.project,value.target);require(!(runtime.store.get('sa.ui.archivedWorkers')??[]).includes(value.target),'Conversation is archived')}
         runtime.store.set('sa.ui.navigation',{project:value.project,target:value.target,compose:value.compose});json(200,{saved:true})
       }
       else if(req.url==='/api/pause'){require(typeof value.paused==='boolean','Boolean required');runtime.store.set('sa.paused',value.paused);json(200,{paused:value.paused})}

@@ -11,8 +11,10 @@ function RuntimeForm({data,reload}:{data:any,reload:()=>Promise<void>}){
   return <form className="dt-form" onSubmit={draft.submit}><Fields disabled={draft.busy}>
     <div className="dt-form dt-block"><h2 className="dt-block-title">执行器</h2>
       <Section title="执行模型"><Input value="跟随 Codex 本机配置" readOnly/><p className="dt-hint">按角色选择模型尚未接通；这里显示当前生效方式。</p></Section>
-      <Field label="同时运行的 Worker 数量"><Input type="number" min={LIMITS.maxWorkers.min} max={LIMITS.maxWorkers.max} required value={draft.value.maxWorkers} onChange={e=>draft.edit({maxWorkers:e.target.value===''?null:Number(e.target.value)})}/></Field>
+      <Field label="同时运行的 Worker 数量"><Input type="number" min={LIMITS.maxWorkers.min} max={LIMITS.maxWorkers.max} required value={draft.value.maxWorkers} onChange={e=>draft.edit({...draft.value,maxWorkers:e.target.value===''?null:Number(e.target.value)})}/></Field>
       <p className="dt-hint">支持 1–16 个 Worker 并行。保存后用于后续调度；减少数量会等待当前工作结束。实际并行数取决于可执行任务、依赖、资源占用和模型额度。</p>
+      <Field label="Worker 单次执行时限（分钟）"><Input type="number" min={1} max={120} required value={draft.value.workerTimeoutSeconds/60} onChange={e=>draft.edit({...draft.value,workerTimeoutSeconds:e.target.value===''?null:Number(e.target.value)*60})}/></Field>
+      <p className="dt-hint">默认 20 分钟，可设为 1–120 分钟。保存后用于新回合和重试；正在执行的回合保留启动时的时限。取消和进程失联保护仍然有效。</p>
     </div>
     <div className="dt-form dt-block"><h2 className="dt-block-title">执行环境</h2><Field label="交付工作区"><Input className="dt-mono" value={data.directory+'/workspaces'} readOnly/></Field>
       <p className="dt-hint">每项任务在独立交付目录执行。自定义准备命令、环境变量和命令黑名单尚未适配；目前只执行已登记作业。</p>
