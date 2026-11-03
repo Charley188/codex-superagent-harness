@@ -48,9 +48,11 @@ class JobTests(unittest.TestCase):
         path=folder/'request.json';path.write_text(json.dumps(request))
         config={'timeout_seconds':120,'repositories':{'synthetic':{'root':str(source),'allow_model_review':True}}}
         result={'returncode':1,'session_id':None,'turn_completed':False,'turn_failed':False,'event_error':False,'stop_reason':'timeout'}
-        with patch.object(execution_worker,'gate',return_value=(config,{'executable':'codex'})),patch.object(execution_worker.app_server,'run',return_value=result) as call:
+        selected={'model':'fixture-model','effort':'high','serviceTier':'default'}
+        with patch.object(execution_worker.model_selection,'worker_selection',return_value=selected),patch.object(execution_worker,'gate',return_value=(config,{'executable':'codex'})),patch.object(execution_worker.app_server,'run',return_value=result) as call:
             execution_worker.run(path)
         self.assertEqual(call.call_args.args[7],3600)
+        self.assertEqual(call.call_args.kwargs['model_selection'],selected)
         self.assertIn('3600',json.loads((folder/'result.json').read_text(encoding='utf-8'))['error'])
     def test_writer_conflict_requires_terminal_pre_turn_evidence(self):
         folder=BASE/'state/dsh-core/process-tests'/str(uuid.uuid4());folder.mkdir(parents=True)

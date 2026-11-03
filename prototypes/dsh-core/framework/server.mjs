@@ -11,6 +11,7 @@ import {createFolderPicker} from './folder-picker.mjs'
 import {harnessApi} from './harness-api.mjs'
 import {Chats} from './chats.mjs'
 import {sidebarState} from './sidebar-state.mjs'
+import {modelSelection} from './model-selection.mjs'
 
 export async function serve(host,{port=0,pump=true,monitor=true,writeMonitor=atomicJson,folderPicker=createFolderPicker()}={}) {
   const {directory,runtime,agent,jobs,watchdog,control}=host
@@ -24,6 +25,7 @@ export async function serve(host,{port=0,pump=true,monitor=true,writeMonitor=ato
   const chats=host.chats=new Chats(host)
   const sidebar=sidebarState(host)
   const harness=harnessApi(host)
+  const models=modelSelection(host)
   const token=randomBytes(32).toString('hex');let closing=false, timer, heartbeatTimer, child, childEnded, busy=new Set(),lastError=null
   let closingWork, httpClose, closedStatus, phase='running', attention=0
   const activity=()=>closedStatus?{workers:0,router:0,watchdog:0,jobs:0}:{
@@ -65,6 +67,7 @@ export async function serve(host,{port=0,pump=true,monitor=true,writeMonitor=ato
         res.writeHead(200,{'content-type':req.url.endsWith('.js')?'text/javascript; charset=utf-8':'text/css; charset=utf-8','x-content-type-options':'nosniff'});res.end(assets.get(req.url));return
       }
       require(req.headers.authorization==='Bearer '+token,'Authentication required')
+      if(req.method==='GET'&&req.url.startsWith('/api/models?')){const q=new URL(req.url,'http://localhost').searchParams;json(200,await models.view(q.get('project'),q.get('target')??''));return}
       if(req.method==='GET'&&req.url.startsWith('/api/harness')){
         require(!closing,'工作台正在退出')
         require(!req.headers.origin||req.headers.origin==='http://'+expected,'Cross-origin request refused')
@@ -111,6 +114,7 @@ export async function serve(host,{port=0,pump=true,monitor=true,writeMonitor=ato
         json(200,await folderPicker.pick(value.initial??'',{signal:controller.signal}))
       }
       else if(req.url==='/api/message') json(200,{id:agent.receive(value)})
+      else if(req.url==='/api/models')json(200,await models.save(value))
       else if(req.url==='/api/chats')json(200,chats.create(value))
       else if(req.url==='/api/chats/message')json(200,chats.receive(value))
       else if(req.url==='/api/chats/retry'){chats.retry(value.project,value.chat);json(200,{retried:true})}

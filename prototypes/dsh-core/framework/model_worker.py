@@ -15,6 +15,7 @@ from project_inputs import repository
 import app_server
 import prompt_snapshot
 import workspace_access
+import model_selection
 
 PROMPTS = load(HERE / "prompts/defaults.json")["roles"]
 
@@ -68,7 +69,8 @@ def run(path):
     result = app_server.run(capability, folder, folder, prompt, schema, output, request['session_id'],
         max(config['timeout_seconds'],300) if project else config['timeout_seconds'], heartbeat=heartbeat, cancel=lambda: (folder / 'cancel').exists(),
         on_session=lambda session: adapter.atomic_json(folder / 'session.json', {'session_id': session}),
-        mcp_servers=mcp,developer_instructions=instruction)
+        mcp_servers=mcp,developer_instructions=instruction,
+        model_selection=model_selection.selection(path.parents[2],request['context'].get('project'),request['context'].get('model_target','')) if request['kind'] in ('chat','router') else None)
     response = {'request_id': request['request_id'], 'request_hash': hashlib.sha256(path.read_bytes()).hexdigest(), 'session_id': result['session_id']}
     try:
         failure = ('Codex 回合超过执行时限，已停止。' if result.get('stop_reason')=='timeout' else

@@ -22,6 +22,7 @@ try{
   await run('legacy-tests','python',['-B','-m','unittest','discover','-s','tests','-v'],join(base,'app'))
   const audit=await run('continuity','python',['-B','framework/validate_release.py'])
   await run('app-server-protocol','python',['-B','framework/app_server_check.py'])
+  await run('model-selection','python',['-B','framework/model_selection_live.py'])
   const workspace=await run('live-workspace','python',['-B','framework/workspace_live.py'])
   const chats=await run('ordinary-chat',process.execPath,['--experimental-transform-types','framework/chats-live.mjs'])
   const crash=await run('host-crash',process.execPath,['--experimental-transform-types','framework/crash-demo.mjs'])

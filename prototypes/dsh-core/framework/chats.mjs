@@ -82,7 +82,7 @@ export class Chats{
    if(!head)return
    const chat=this.db.prepare('SELECT * FROM sa_chat WHERE id=?').get(head.chat)
    const rows=this.db.prepare('SELECT id,text FROM sa_chat_message WHERE chat=? AND processed=0 ORDER BY seq LIMIT 12').all(chat.id)
-   const id=randomUUID(),context={project:chat.project,projects:[],messages:rows},request={kind:'chat',request_id:id,session_id:chat.session_id,snapshot_hash:hash(JSON.stringify(rows)),context},encoded=JSON.stringify(request)
+   const id=randomUUID(),context={project:chat.project,model_target:'chat:'+chat.id,projects:[],messages:rows},request={kind:'chat',request_id:id,session_id:chat.session_id,snapshot_hash:hash(JSON.stringify(rows)),context},encoded=JSON.stringify(request)
    this.db.prepare("INSERT INTO sa_chat_call VALUES (?,?,'running',?,?,NULL,NULL)").run(id,chat.id,encoded,hash(encoded));this.budget--
    const row=this.db.prepare('SELECT * FROM sa_chat_call WHERE id=?').get(id)
    try{this.settle(row,await this.host.control.execute(request,row.request_hash))}

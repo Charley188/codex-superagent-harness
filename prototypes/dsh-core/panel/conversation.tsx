@@ -4,6 +4,7 @@ import {ConversationHeader} from './upstream-harness/packages/client/ui-conversa
 import css from './upstream-harness/packages/client/ui-conversation/src/client/skeleton/ConversationRoot.module.css'
 import {Button} from '../vendor/dsh/src/client/controls.tsx'
 import {previewField} from './stream-text.ts'
+import {ModelPicker} from './model-picker.tsx'
 
 const states={running:'执行中',completed:'已完成',applied:'已完成',failed:'失败',cancelled:'已取消',uncertain:'等待核查',invalid:'需要处理',reconciled:'已核查'}
 function Report({report}:{report:any}){
@@ -82,7 +83,7 @@ export function Conversation({project,ticket,onPanel,onRefresh}:{project:string,
    {failure&&<p className="sa-error" role="alert">{failure}</p>}
    {data?.budget===0&&<p className="sa-error" role="status">执行预算已用完，排队消息仍会保留。<Button size="sm" onClick={()=>void request('/api/budgets/add',{role:chat?'chat':worker?'worker':'router',amount:20}).then(onRefresh).catch(e=>setFailure(e.message))}>补充 20 轮</Button></p>}
    <textarea id="sa-chat-input" aria-label="目标或追问" placeholder={worker?'向这个 Worker 追问或补充要求':chat?'发消息':'发消息或创建任务'} value={text} maxLength={4000} disabled={busy||!!selected?.ended} onChange={e=>setText(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.nativeEvent.isComposing){e.preventDefault();void send()}}}/>
-   <div className="sa-composer-footer"><small>{selected?.ended?'任务已结束，请向 Router 提出新请求':data?.paused?'任务已暂停 · 消息将保留在队列':'Enter 发送 · Shift+Enter 换行'}</small><span>Codex{chat?'':worker?' · Worker':' · Router'}</span><Button variant="primary" disabled={busy||!text.trim()||!!selected?.ended} onClick={()=>void send()}>发送</Button></div>
+   <div className="sa-composer-footer"><small>{selected?.ended?'任务已结束，请向 Router 提出新请求':data?.paused?'任务已暂停 · 消息将保留在队列':'Enter 发送 · Shift+Enter 换行'}</small><ModelPicker key={project+':'+ticket} project={project} target={ticket}/><Button variant="primary" disabled={busy||!text.trim()||!!selected?.ended} onClick={()=>void send()}>发送</Button></div>
   </div></div>
  </section>
 }

@@ -128,7 +128,7 @@ class Rpc:
             self.log.close(); self.ui_log.close(); self.err.close()
 
 
-def run(capability, cwd, folder, prompt, schema, output, session, timeout, heartbeat=lambda: True, cancel=lambda: False, on_session=lambda s: None, mcp_servers=None, workspace_write=False, developer_instructions=None):
+def run(capability, cwd, folder, prompt, schema, output, session, timeout, heartbeat=lambda: True, cancel=lambda: False, on_session=lambda s: None, mcp_servers=None, workspace_write=False, developer_instructions=None, model_selection=None):
     rpc = Rpc(capability['executable'], cwd, folder, timeout, heartbeat, cancel, mcp_servers)
     result = {'returncode': 1, 'session_id': None, 'turn_completed': False, 'turn_failed': False, 'event_error': None, 'stop_reason': None, 'transport': VERSION}
     messages = {}
@@ -140,7 +140,11 @@ def run(capability, cwd, folder, prompt, schema, output, session, timeout, heart
                       'config': {'web_search': 'disabled', 'mcp_servers': mcp_servers or {}},
                       'developerInstructions': developer_instructions or 'Use supplied input only. No tools, commands, external messages or file operations. Return the requested structured result.'}
             if session: params.update(threadId=session, excludeTurns=True)
+            if model_selection:
+                params['model']=model_selection['model']
+                params['config'].update(model_reasoning_effort=model_selection['effort'],service_tier=model_selection['serviceTier'])
             response = rpc.call('thread/resume' if session else 'thread/start', params)
+            adapter.atomic_json(Path(folder)/'model-selection.json',{'requested':model_selection,'resolved':{k:response.get(k) for k in ('model','reasoningEffort','serviceTier')}})
             rpc.session = response['thread']['id']
             if session and rpc.session != session: raise ValueError('Resume changed thread identity')
             result['session_id'] = rpc.session
@@ -149,6 +153,7 @@ def run(capability, cwd, folder, prompt, schema, output, session, timeout, heart
             policy = {'type':'workspaceWrite','writableRoots':[str(Path(cwd).resolve())],'networkAccess':False,'excludeSlashTmp':True,'excludeTmpdirEnvVar':True} if workspace_write else {'type':'readOnly','networkAccess':False}
             turn_params = {'threadId': rpc.session, 'input': [{'type': 'text', 'text': prompt}],
                             'approvalPolicy': 'never', 'sandboxPolicy': policy, 'outputSchema': schema}
+            if model_selection:turn_params.update(model=model_selection['model'],effort=model_selection['effort'],serviceTier=model_selection['serviceTier'])
             if developer_instructions:
                 # A resumed rollout retains old developer messages. Supply the current host policy
                 # as application context on every turn instead of trusting resume defaults alone.

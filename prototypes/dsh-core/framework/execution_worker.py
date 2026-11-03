@@ -16,6 +16,7 @@ import copy
 import app_server
 import prompt_snapshot
 import workspace_access
+import model_selection
 
 def workspace_fingerprint():
     return hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
@@ -119,7 +120,7 @@ def run(path):
         result=adapter.run_process(args,workspace,folder,prompt,timeout,heartbeat=heartbeat,cancel=lambda:(folder/'cancel').exists())
     else:
         instruction=('Host access policy for this turn supersedes historical snapshot-only instructions. '+live_policy+' Return the requested structured result; checked_inputs still references the contract manifest, while actual file versions are recorded by project tools.') if project else None
-        result=app_server.run(capability,project_copy if live_write else folder,folder,prompt,schema,output,request['session_id'],timeout,heartbeat=heartbeat,cancel=lambda:(folder/'cancel').exists(),mcp_servers=mcp,workspace_write=live_write,developer_instructions=instruction)
+        result=app_server.run(capability,project_copy if live_write else folder,folder,prompt,schema,output,request['session_id'],timeout,heartbeat=heartbeat,cancel=lambda:(folder/'cancel').exists(),mcp_servers=mcp,workspace_write=live_write,developer_instructions=instruction,model_selection=model_selection.worker_selection(path.parents[2],request['ticket_id']))
     response={k:request[k] for k in ('ticket_id','assignment_id','turn_id')}
     response.update(request_hash=hashlib.sha256(path.read_bytes()).hexdigest(),session_id=result['session_id'])
     try:
