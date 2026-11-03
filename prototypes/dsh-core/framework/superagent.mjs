@@ -101,7 +101,7 @@ export class Superagent {
   context(project, rows) {
     const p = this.project(project)
     const context = { project: p.id, working_directory:p.root??null, projects: p.capabilities.map(c => ({ repo_id: c.repo_id })),
-      capabilities: p.capabilities.map(c => ({ id: c.id, repo_id: c.repo_id, description: c.description, permission:c.permission ?? 'read-only', inputs: c.inputs })),
+      capabilities: p.capabilities.map(c => ({ id: c.id, repo_id: c.repo_id, description: p.root?(c.permission==='artifact-write'?'Live project reads; native editing and local tests in an isolated task work copy':'Live project file listing/search/reading, including subsequent user revisions'):c.description, permission:c.permission ?? 'read-only', inputs: c.inputs })),
       job_profiles: p.jobs?.map(j => ({ id: j.id, description: j.description })) ?? [],
       authorized_goals:[...new Set(this.store.db.prepare('SELECT parent_trigger,ticket_id FROM sa_ticket WHERE project=?').all(project).filter(r=>!this.store.tickets.get(r.ticket_id)?.ended).map(r=>r.parent_trigger))]
         .map(id=>this.store.triggers.get(id)).filter(Boolean).map(t=>({trigger_id:t.id,text:t.text})),

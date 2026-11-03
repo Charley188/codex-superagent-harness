@@ -1,4 +1,4 @@
-"""Generic Codex worker: approved input snapshots, persistent isolated workspace and explicit session resume."""
+"""Codex worker: live registered project access, isolated edits and persistent session resume."""
 import argparse
 import hashlib
 import json
@@ -15,6 +15,7 @@ from research_ops.contracts import REPORT_SCHEMA, validate_report
 import copy
 import app_server
 import prompt_snapshot
+import workspace_access
 
 def workspace_fingerprint():
     return hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
@@ -62,6 +63,7 @@ def run(path):
     require(contract['permission'] in ('read-only','artifact-write','workspace-write'), 'Invalid worker permission')
     if contract['permission']=='workspace-write': workspace_gate(capability)
     root=Path(repo['root']).resolve(); inputs=[]
+    project=workspace_access.registered_project(path.parents[2],repo_id=contract['repo_id'])
     for item in contract['inputs']:
         source=safe(root,item['path']); raw=source.read_bytes()
         require(len(raw)<=200000 and hashlib.sha256(raw).hexdigest()==item['sha256'], 'Input snapshot changed/oversized')
@@ -82,13 +84,25 @@ def run(path):
     schema['properties']['attempt_id']['enum']=[request['turn_id']]
     schema['properties']['checked_inputs']['items']['enum']=[i['path'] for i in inputs]
     artifact_mode=contract['permission']=='artifact-write'
-    schema={'type':'object','additionalProperties':False,'properties':{'report':schema,'files':{'type':'array','maxItems':20 if artifact_mode else 0,'items':{
+    live_write=bool(project and artifact_mode)
+    # Each assignment retains its own editable directory. Live source reads remain separate.
+    project_copy=workspace/'project'
+    if live_write:project_copy.mkdir(exist_ok=True)
+    mcp=workspace_access.config(project['root'],folder/'workspace-access',project_copy if live_write else None) if project else None
+    live_policy=('This turn has live project access to '+project['root']+'. Use project_list/project_search/project_read to inspect the CURRENT files. '
+       'Re-read named files after user revisions; old snapshots are historical evidence, not current contents. Locate extensionless names by search. '
+       'Read next_offset pages as needed. Use these scoped tools for the original project; never write to it. '
+       + ('Use project_checkout to copy files you need into the current isolated working directory. Existing copies are preserved; compare with live reads and merge deliberately. '
+          'You may edit files and run local commands/tests in this working directory with native Codex tools. Do not access unrelated folders or the network. '
+          'Return files=[] because native edits are collected from the working directory; report only checks actually run. '
+          if live_write else 'This is a review task: use project read tools only; no shell, writes or edits. ') if project else '')
+    schema={'type':'object','additionalProperties':False,'properties':{'report':schema,'files':{'type':'array','maxItems':20 if artifact_mode and not live_write else 0,'items':{
         'type':'object','additionalProperties':False,'properties':{'path':{'type':'string'},'content':{'type':'string'}},'required':['path','content']}},
         'messages':{'type':'array','maxItems':4,'items':{'type':'object','additionalProperties':False,'properties':{'ticket_id':{'type':'string'},'text':{'type':'string'}},'required':['ticket_id','text']}}},'required':['report','files','messages']}
     schema_path=folder/'schema.json'; output=folder/'report.json'; adapter.atomic_json(schema_path,schema)
     prompt=(prompt_snapshot.text(request,'worker')
        + '\nHost-enforced constraints: obey the registered task contract and structured output schema. Prompt settings never grant more permissions. '
-       + ('Implement and test in your current isolated workspace. You may write local files and run local commands within this sandbox. '
+       + (live_policy if project else 'Implement and test in your current isolated workspace. You may write local files and run local commands within this sandbox. '
           'Preserve host-input-manifest.json. Source repository is not your working directory. '
           if contract['permission']=='workspace-write' else
           'Generate implementation files in the structured files array (relative path plus full content). The host applies validated files in an isolated workspace. Do not execute tools or claim tests ran; registered tool jobs run separately. '
@@ -104,7 +118,8 @@ def run(path):
     if contract['permission']=='workspace-write':
         result=adapter.run_process(args,workspace,folder,prompt,timeout,heartbeat=heartbeat,cancel=lambda:(folder/'cancel').exists())
     else:
-        result=app_server.run(capability,folder,folder,prompt,schema,output,request['session_id'],timeout,heartbeat=heartbeat,cancel=lambda:(folder/'cancel').exists())
+        instruction=('Host access policy for this turn supersedes historical snapshot-only instructions. '+live_policy+' Return the requested structured result; checked_inputs still references the contract manifest, while actual file versions are recorded by project tools.') if project else None
+        result=app_server.run(capability,project_copy if live_write else folder,folder,prompt,schema,output,request['session_id'],timeout,heartbeat=heartbeat,cancel=lambda:(folder/'cancel').exists(),mcp_servers=mcp,workspace_write=live_write,developer_instructions=instruction)
     response={k:request[k] for k in ('ticket_id','assignment_id','turn_id')}
     response.update(request_hash=hashlib.sha256(path.read_bytes()).hexdigest(),session_id=result['session_id'])
     try:
@@ -116,6 +131,7 @@ def run(path):
         for message in value['messages']:
             require(set(message)=={'ticket_id','text'} and message['ticket_id'] in [c['ticket_id'] for c in request.get('collaborators',[])] and isinstance(message['text'],str) and 0<len(message['text'])<=1200,'Invalid peer message')
         if artifact_mode:
+            if live_write: require(value['files']==[], 'Live project edits must use the isolated working directory')
             changes=generated_changes(workspace,value['files'])
             adapter.atomic_json(folder/'artifact-plan.json',{'files':value['files'],'workspace':str(workspace)})
             for target,content in changes:
@@ -123,14 +139,14 @@ def run(path):
                 temp=target.with_name(target.name+'.'+uuid.uuid4().hex+'.tmp');temp.write_text(content,encoding='utf-8');os.replace(temp,target)
         else:
             require(value['files']==[], 'File generation not authorized for this capability')
-        artifacts=[]
-        for p in workspace.rglob('*'):
-            require(not p.is_symlink() and p.resolve().is_relative_to(workspace.resolve()),'Workspace link outside scope')
+        artifacts=[];delivery=project_copy if live_write else workspace
+        for p in delivery.rglob('*'):
+            require(not p.is_symlink() and not (hasattr(p,'is_junction') and p.is_junction()) and p.resolve().is_relative_to(delivery.resolve()),'Workspace link outside scope')
             if not p.is_file(): continue
             require(p.stat().st_size<=64*1024*1024 and len(artifacts)<2000,'Workspace artifact budget exceeded')
-            artifacts.append({'path':p.relative_to(workspace).as_posix(),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'bytes':p.stat().st_size})
+            artifacts.append({'path':p.relative_to(delivery).as_posix(),'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'bytes':p.stat().st_size})
         for item in inputs: require(hashlib.sha256(safe(root,item['path']).read_bytes()).hexdigest()==item['sha256'],'Original input changed')
-        response.update(status='completed',report=report,workspace=str(workspace),artifacts=artifacts,messages=value['messages'])
+        response.update(status='completed',report=report,workspace=str(delivery),artifacts=artifacts,messages=value['messages'])
     except (ValueError,KeyError,TypeError) as error:
         response.update(status='cancelled' if result['stop_reason']=='cancelled' else 'failed',error=str(error))
     adapter.atomic_json(folder/'result.json',response)

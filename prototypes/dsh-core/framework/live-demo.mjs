@@ -57,7 +57,7 @@ try {
   for(const section of ['communication','scope','delivery'])assert(watchRequest.prompt.text.includes(agent.prompts.current().config[section]),'Team default missing from actual Watchdog request: '+section)
   writeFileSync(join(projectFolder,'fixture.md'),'This is synthetic project material. Marker: NEW_WORKSPACE_73. Count: 73.\n')
   const created=agent.addProject({name:'合成页面项目执行验收',root:projectFolder})
-  agent.receive({id:'workspace-project-goal',project:created.id,text:'请用 create 能力安排一个 Worker：读取工作文件夹的合成 fixture.md，生成 workspace-result.md，内容保留输入中的完整 NEW_WORKSPACE 标记和计数。只生成隔离交付文件，不运行工具，不增加其它任务。'})
+  agent.receive({id:'workspace-project-goal',project:created.id,text:'请先亲自用项目工具读取 fixture.md 确认标记，然后用 create 能力安排一个 Worker：读取工作文件夹的合成 fixture.md，生成 workspace-result.md，内容保留输入中的完整 NEW_WORKSPACE 标记和计数。只生成隔离交付文件，不增加其它任务。'})
   // Other projects can have older pending receipts; one router tick need not select this project.
   for(let tick=0;tick<4&&agent.store.db.prepare("SELECT processed FROM sa_message WHERE id='workspace-project-goal'").get().processed===0;tick++)assert.equal(await agent.routerOnce(),'applied')
   assert.equal(agent.store.db.prepare("SELECT processed FROM sa_message WHERE id='workspace-project-goal'").get().processed,1)
@@ -67,6 +67,20 @@ try {
   assert.match(readFileSync(join(workspaceTurn.result.workspace,'workspace-result.md'),'utf8'),/NEW_WORKSPACE_73/)
   assert.equal(readFileSync(join(projectFolder,'fixture.md'),'utf8'),'This is synthetic project material. Marker: NEW_WORKSPACE_73. Count: 73.\n')
   log({stage:'ui-registered-project-worker-passed',project:created.id})
+  writeFileSync(join(projectFolder,'fixture.md'),'Revised synthetic project material. Marker: REVISED_WORKSPACE_94. Count: 94.\n')
+  writeFileSync(join(projectFolder,'new-file.txt'),'NEW_ADDED_FILE_27\n')
+  agent.receive({id:'workspace-project-revision',project:created.id,ticket_id:workspaceTurn.ticket_id,text:'原目录 fixture.md 已更新，且增加 new-file.txt。请继续原 Worker 工单，重新读取这两个当前文件，将新标记和计数写入原隔离目录 workspace-result.md，替换旧标记。不要新建工单。'})
+  for(let tick=0;tick<6&&agent.store.db.prepare("SELECT processed FROM sa_message WHERE id='workspace-project-revision'").get().processed===0;tick++)assert.equal(await agent.routerOnce(),'applied')
+  assert.equal(agent.store.db.prepare("SELECT processed FROM sa_message WHERE id='workspace-project-revision'").get().processed,1)
+  await agent.workersOnce()
+  const revised=host.runtime.turns().filter(t=>t.ticket_id===workspaceTurn.ticket_id).at(-1)
+  assert.notEqual(revised.id,workspaceTurn.id)
+  assert.equal(revised.state,'completed',JSON.stringify(revised))
+  assert.equal(revised.result.session_id,workspaceTurn.result.session_id)
+  assert.equal(revised.result.workspace,workspaceTurn.result.workspace)
+  const revisedText=readFileSync(join(revised.result.workspace,'workspace-result.md'),'utf8')
+  assert.match(revisedText,/REVISED_WORKSPACE_94/);assert.match(revisedText,/NEW_ADDED_FILE_27/);assert.doesNotMatch(revisedText,/NEW_WORKSPACE_73/)
+  log({stage:'ui-project-same-worker-live-revision-passed'})
   const before=host.runtime.turns().map(t=>t.id),calls=host.runtime.store.db.prepare('SELECT count(*) n FROM sa_call').get().n
   await host.runtime.close();host=openRuntime(directory);await host.runtime.recover();await host.agent.recoverRouter()
   assert.equal(host.runtime.capacity,4,'Saved concurrency must survive a host restart without the panel')
@@ -76,7 +90,7 @@ try {
   assert.equal(sourceFingerprint(),fingerprint,'Source changed during validation')
   const result={status:'passed',fingerprint,directory,peak_workers:peak,router_calls:calls,worker_turns:before.length,same_session_followup:true,
     peer_message_delivered:true,artifact_generation:true,independent_registered_tests:true,watchdog_semantic_call:true,reopened_without_reexecution:true,
-    ui_registered_project_worker:true,custom_prompt_reached_router_and_worker:true,built_in_override_reached_router_and_worker:true,cli_workspace_write:'not certified; model session enforced read-only',private_inputs_used:false,
+    ui_registered_project_worker:true,ui_project_same_worker_live_revision:true,custom_prompt_reached_router_and_worker:true,built_in_override_reached_router_and_worker:true,cli_workspace_write:'Registered project Workers use native tools in isolated task copies; legacy synthetic artifact contracts remain structured-output',private_inputs_used:false,
     source_integration:'Generated files stay in isolated workspace; no repository merge or deployment'}
   writeFileSync(join(directory,'validation.json'),JSON.stringify(result,null,2));log(result)
 } catch(error) {

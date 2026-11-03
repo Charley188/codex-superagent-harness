@@ -22,6 +22,7 @@ try{
   await run('legacy-tests','python',['-B','-m','unittest','discover','-s','tests','-v'],join(base,'app'))
   const audit=await run('continuity','python',['-B','framework/validate_release.py'])
   await run('app-server-protocol','python',['-B','framework/app_server_check.py'])
+  const workspace=await run('live-workspace','python',['-B','framework/workspace_live.py'])
   const chats=await run('ordinary-chat',process.execPath,['--experimental-transform-types','framework/chats-live.mjs'])
   const crash=await run('host-crash',process.execPath,['--experimental-transform-types','framework/crash-demo.mjs'])
   const live=await run('live-model',process.execPath,['--experimental-transform-types','framework/live-demo.mjs'])
@@ -30,6 +31,7 @@ try{
   const report={status:'passed',fingerprint,at:new Date().toISOString(),node_tests:summary.numPassedTests,folder,
     audit:JSON.parse(audit.trim()),chats:JSON.parse(chats.trim().split('\n').filter(l=>l.startsWith('{')).at(-1)),crash:JSON.parse(crash.trim().split('\n').filter(l=>l.startsWith('{')).at(-1)),
     live:JSON.parse(live.trim().split('\n').filter(l=>l.startsWith('{')).at(-1)),
+    workspace:JSON.parse(workspace.trim().split('\n').filter(l=>l.startsWith('{')).at(-1)),
     scope:'Local synthetic framework acceptance; no private data, physical FPGA toolchain, unattended production soak or source merge certification'}
   writeFileSync(join(folder,'validation.json'),JSON.stringify(report,null,2));writeFileSync(join(base,'state/framework-accepted.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report))
 }catch(error){writeFileSync(join(folder,'failure.json'),JSON.stringify({status:'failed',fingerprint,error:String(error)},null,2));console.error(error);process.exitCode=1}

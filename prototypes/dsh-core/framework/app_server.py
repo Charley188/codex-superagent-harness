@@ -16,7 +16,7 @@ LIMIT = 32 * 1024 * 1024
 
 
 class Rpc:
-    def __init__(self, executable, cwd, folder, timeout=120, heartbeat=lambda: True, cancel=lambda: False):
+    def __init__(self, executable, cwd, folder, timeout=120, heartbeat=lambda: True, cancel=lambda: False, mcp_servers=None):
         self.folder, self.started = Path(folder), time.monotonic()
         self.timeout, self.heartbeat, self.cancel = timeout, heartbeat, cancel
         self.reason, self.counter, self.session, self.turn = None, 0, None, None
@@ -27,7 +27,11 @@ class Rpc:
         self.log = (self.folder / 'app-server.jsonl').open('w', encoding='utf-8', buffering=1)
         self.ui_log = (self.folder / 'ui-events.jsonl').open('w', encoding='utf-8', buffering=1)
         args = [executable, '--no-daemon', '--disable', 'apps', '--disable', 'browser_use', '--disable', 'computer_use',
-                '-c', 'web_search="disabled"', '-c', 'mcp_servers={}', 'app-server', '--listen', 'stdio://']
+                '-c', 'web_search="disabled"', '-c', 'mcp_servers={}']
+        for name, settings in (mcp_servers or {}).items():
+            for key, value in settings.items():
+                args += ['-c', 'mcp_servers.'+name+'.'+key+'='+json.dumps(value,ensure_ascii=False)]
+        args += ['app-server', '--listen', 'stdio://']
         options = {'creationflags': subprocess.CREATE_NO_WINDOW} if os.name == 'nt' else {'start_new_session': True}
         self.process = subprocess.Popen(args, cwd=cwd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=self.err, **options)
         try:
@@ -111,7 +115,7 @@ class Rpc:
             return value.get('result', {})
 
     def initialize(self):
-        result = self.call('initialize', {'clientInfo': {'name': 'codex_superagent', 'title': 'Codex Superagent', 'version': '1.0.0'}})
+        result = self.call('initialize', {'clientInfo': {'name': 'codex_superagent', 'title': 'Codex Superagent', 'version': '1.0.0'}, 'capabilities': {'experimentalApi': True}})
         self.send({'method': 'initialized', 'params': {}})
         return result
 
@@ -124,17 +128,17 @@ class Rpc:
             self.log.close(); self.ui_log.close(); self.err.close()
 
 
-def run(capability, cwd, folder, prompt, schema, output, session, timeout, heartbeat=lambda: True, cancel=lambda: False, on_session=lambda s: None):
-    rpc = Rpc(capability['executable'], cwd, folder, timeout, heartbeat, cancel)
+def run(capability, cwd, folder, prompt, schema, output, session, timeout, heartbeat=lambda: True, cancel=lambda: False, on_session=lambda s: None, mcp_servers=None, workspace_write=False, developer_instructions=None):
+    rpc = Rpc(capability['executable'], cwd, folder, timeout, heartbeat, cancel, mcp_servers)
     result = {'returncode': 1, 'session_id': None, 'turn_completed': False, 'turn_failed': False, 'event_error': None, 'stop_reason': None, 'transport': VERSION}
     messages = {}
     with (Path(folder) / 'events.jsonl').open('w', encoding='utf-8', buffering=1) as normalized:
         def event(value): normalized.write(json.dumps(value, ensure_ascii=False) + '\n')
         try:
             rpc.initialize()
-            params = {'cwd': str(Path(cwd).resolve()), 'sandbox': 'read-only', 'approvalPolicy': 'never',
-                      'config': {'web_search': 'disabled', 'mcp_servers': {}},
-                      'developerInstructions': 'Use supplied input only. No tools, commands, external messages or file operations. Return the requested structured result.'}
+            params = {'cwd': str(Path(cwd).resolve()), 'sandbox': 'workspace-write' if workspace_write else 'read-only', 'approvalPolicy': 'never',
+                      'config': {'web_search': 'disabled', 'mcp_servers': mcp_servers or {}},
+                      'developerInstructions': developer_instructions or 'Use supplied input only. No tools, commands, external messages or file operations. Return the requested structured result.'}
             if session: params.update(threadId=session, excludeTurns=True)
             response = rpc.call('thread/resume' if session else 'thread/start', params)
             rpc.session = response['thread']['id']
@@ -142,8 +146,15 @@ def run(capability, cwd, folder, prompt, schema, output, session, timeout, heart
             result['session_id'] = rpc.session
             on_session(rpc.session)
             event({'type': 'thread.started', 'thread_id': rpc.session})
-            turn = rpc.call('turn/start', {'threadId': rpc.session, 'input': [{'type': 'text', 'text': prompt}],
-                            'approvalPolicy': 'never', 'sandboxPolicy': {'type': 'readOnly', 'networkAccess': False}, 'outputSchema': schema})
+            policy = {'type':'workspaceWrite','writableRoots':[str(Path(cwd).resolve())],'networkAccess':False,'excludeSlashTmp':True,'excludeTmpdirEnvVar':True} if workspace_write else {'type':'readOnly','networkAccess':False}
+            turn_params = {'threadId': rpc.session, 'input': [{'type': 'text', 'text': prompt}],
+                            'approvalPolicy': 'never', 'sandboxPolicy': policy, 'outputSchema': schema}
+            if developer_instructions:
+                # A resumed rollout retains old developer messages. Supply the current host policy
+                # as application context on every turn instead of trusting resume defaults alone.
+                turn_params['additionalContext']={'workspace-policy':{'kind':'application','value':
+                    'Current host policy supersedes earlier host instructions that disabled tools or required input snapshots only. '+developer_instructions}}
+            turn = rpc.call('turn/start', turn_params)
             rpc.turn = turn['turn']['id']
             adapter.atomic_json(Path(folder) / 'app-server-turn.json', {'thread_id': rpc.session, 'turn_id': rpc.turn, 'transport': VERSION})
             while True:

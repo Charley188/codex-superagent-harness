@@ -42,7 +42,7 @@ export function openRuntime(directory=defaultDirectory, overrides={}) {
     const agent=new Superagent(runtime,control,config.projects,{controlBudget:config.router_budget})
     agent.hostDirectory=directory
     agent.prompts.directory=directory
-    // Every task writes only its isolated assignment workspace; original source paths remain snapshots.
+    // Tasks read current registered sources; all edits stay in isolated assignment workspaces.
     runtime.resourceKey=(ticket,contract)=>contract.repo_id+':'+ticket.id
     const enrichRequest=runtime.enrichRequest
     runtime.enrichRequest=request=>{

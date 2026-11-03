@@ -1,11 +1,9 @@
 import {realpathSync,statSync,mkdirSync,writeFileSync,readFileSync} from 'node:fs'
 import {isAbsolute,relative,parse,join,resolve} from 'node:path'
 import {randomUUID} from 'node:crypto'
-import {spawnSync} from 'node:child_process'
 import {fileURLToPath} from 'node:url'
 import {hash} from '../src/durable-runtime.mjs'
 import {require} from './contracts.mjs'
-const here=fileURLToPath(new URL('.',import.meta.url))
 const beneath=(a,b)=>{const r=relative(a,b);return !r||(!r.startsWith('..')&&!isAbsolute(r))}
 export function attachProjects(agent){
   const saved=agent.store.get('sa.workspace.projects')??[]
@@ -23,15 +21,14 @@ export function attachProjects(agent){
     require(!agent.projects.some(p=>p.root&& (beneath(p.root,canonical)||beneath(canonical,p.root))),'该文件夹已登记或与现有项目重叠')
     const id='project-'+randomUUID(),repo='workspace-'+id
     const p={id,description:name.trim(),root:canonical,created_at:new Date().toISOString(),capabilities:['read-only','artifact-write'].map((permission,i)=>({id:i?'create':'review',repo_id:repo,permission,
-      description:i?'根据项目资料生成交付文件到隔离工作区':'读取项目资料并分析；范围和遗漏见项目上下文',inputs:[{path:'project-context.json',sha256:hash(canonical)}]}))}
+      description:i?'按需读取当前项目文件，在独立工作副本编辑并运行本地测试':'使用文件工具查找并读取当前项目资料进行分析',inputs:[{path:'project-context.json',sha256:hash(canonical)}]}))}
     agent.store.atomic(()=>{agent.store.set('sa.workspace.projects',[...(agent.store.get('sa.workspace.projects')??[]),p]);agent.runtime.audit({type:'human.project.created',id,root:canonical,name:p.description})})
     agent.projects.push(p);return {id,name:p.description,root:p.root}
   }
   agent.prepareProjectCapability=(project,cap)=>{
     const p=agent.project(project);if(!p.root)return cap
-    const captured=spawnSync('python',['-B',join(here,'project_inputs.py'),'capture',p.root],{encoding:'utf8',windowsHide:true,maxBuffer:900000,timeout:15000})
-    require(captured.status===0,'无法准备项目资料：'+(captured.stderr||captured.error||''))
-    const content=captured.stdout;JSON.parse(content)
+    const content=JSON.stringify({version:2,root:p.root,access:'live-project-tools',id:randomUUID(),
+      note:'This manifest identifies the registered project. Use project_list/search/read for CURRENT file contents, including subsequent revisions. Reads are versioned per turn. Use project_checkout before editing an isolated copy.'})
     // Runtime's persistent location is supplied explicitly by the host.
     require(agent.hostDirectory,'Project host directory missing')
     const name=randomUUID()+'/project-context.json',out=join(agent.hostDirectory,'project-inputs',p.id,name)
