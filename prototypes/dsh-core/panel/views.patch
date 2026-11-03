@@ -1,0 +1,84 @@
+--- upstream/overview.ts
++++ adapted/overview.ts
+@@ -1,9 +1,9 @@
+ /** Overview view: active system problems, tickets awaiting human action, executor load, and 24-hour trigger flow. */
+-import { reasonText, ticketStage, type Decision, type Thread } from '../../core/index.ts'
+-import type { Health } from '../../sources/host.ts'
+-import type { SetupProblem } from '../../setup.ts'
+-import { anyoneAllowed } from '../../policy.ts'
+-import type { Store } from '../store.ts'
++import { reasonText, ticketStage, type Decision, type Thread } from '../../vendor/dsh/src/core/index.ts'
++import type { Health } from '../../vendor/dsh/src/sources/host.ts'
++import type { SetupProblem } from '../../vendor/dsh/src/setup.ts'
++import { anyoneAllowed } from '../../vendor/dsh/src/policy.ts'
++import type { Store } from '../../adapted/store.ts'
+ import { awaitingEval, dayAgo, newestFirst, ownersOf, snapshot, threadSummary, type ViewHost } from './records.ts'
+ import { sourceHealth, type HealthMap } from './sources.ts'
+ import { ticketRow, type ExecutorLoad } from './tickets.ts'
+--- upstream/tickets.ts
++++ adapted/tickets.ts
+@@ -1,8 +1,8 @@
+ /** Ticket list, ticket detail, mandate basis formatting, and executor load views. */
+ import { liveTicket, threadKey, ticketStage, type AcceptMode, type AdmissionCell, type MandateBasis, type Ticket,
+-  type TicketStage } from '../../core/index.ts'
+-import { workerSessionId } from '../../executor/dsh.ts'
+-import type { Store } from '../store.ts'
++  type TicketStage } from '../../vendor/dsh/src/core/index.ts'
++import { workerSessionId } from './sessions.mjs'
++import type { Store } from '../../adapted/store.ts'
+ import { channelLink, decisionView, newestFirst, page, snapshot, threadSummary, ticketLine, type Snapshot,
+   type ViewHost } from './records.ts'
+ import { markdown, preview } from './text.ts'
+--- upstream/threads.ts
++++ adapted/threads.ts
+@@ -1,7 +1,7 @@
+ /** Thread list, timeline detail, cross-entity search, and decision list views. */
+-import { threadKey, type Thread, type Ticket, type Trigger } from '../../core/index.ts'
+-import type { ThreadFilter } from '../api.ts'
+-import type { TextCache } from '../cache.ts'
++import { threadKey, type Thread, type Ticket, type Trigger } from '../../vendor/dsh/src/core/index.ts'
++import type { ThreadFilter } from '../../vendor/dsh/src/app/api.ts'
++import type { TextCache } from '../../vendor/dsh/src/app/cache.ts'
+ import { awaitingEval, channelLink, dayAgo, decisionView, newestFirst, page, snapshot, threadSummary, threadTitle, ticketLine,
+   ticketSummary, triggerView, type ViewHost } from './records.ts'
+ import { attribute } from './text.ts'
+--- upstream/records.ts
++++ adapted/records.ts
+@@ -1,12 +1,12 @@
+ /** Shared view projections for triggers, tickets, threads, decisions, and channel links. */
+ import { z } from 'zod'
+ import { canRetry, followupOwners, latestReport, liveTicket, settled, threadKey, ticketStage, type ActorRef, type ChannelRef, type Decision,
+-  type DecisionKind, type Thread, type ThreadFacts, type Ticket, type TicketStage, type Trigger } from '../../core/index.ts'
+-import { allowedSender, listedBot } from '../../policy.ts'
+-import type { ChannelLink, Localized } from '../../sources/kind.ts'
+-import type { SourceRegistry } from '../../sources/registry.ts'
+-import { workerSessionId } from '../../executor/dsh.ts'
+-import type { Store } from '../store.ts'
++  type DecisionKind, type Thread, type ThreadFacts, type Ticket, type TicketStage, type Trigger } from '../../vendor/dsh/src/core/index.ts'
++import { allowedSender, listedBot } from '../../vendor/dsh/src/policy.ts'
++import type { ChannelLink, Localized } from '../../vendor/dsh/src/sources/kind.ts'
++import type { SourceRegistry } from '../../vendor/dsh/src/sources/registry.ts'
++import { workerSessionId } from './sessions.mjs'
++import type { Store } from '../../adapted/store.ts'
+ import { attribute, markdown, plain, preview, readable } from './text.ts'
+ 
+ export type LinkTarget = (channel: ChannelRef) => ChannelLink
+--- upstream/sources.ts
++++ adapted/sources.ts
+@@ -1,10 +1,10 @@
+ /** Source status view: health, 24-hour trigger counts, and recently filtered or dropped messages per Source instance. */
+-import { threadKey } from '../../core/index.ts'
+-import type { Deployment } from '../../deployment.ts'
+-import type { Health } from '../../sources/host.ts'
+-import type { SourceInstance } from '../../sources/kind.ts'
+-import type { SourceRegistry } from '../../sources/registry.ts'
+-import type { SetupProblem } from '../../setup.ts'
++import { threadKey } from '../../vendor/dsh/src/core/index.ts'
++import type { Deployment } from '../../vendor/dsh/src/deployment.ts'
++import type { Health } from '../../vendor/dsh/src/sources/host.ts'
++import type { SourceInstance } from '../../vendor/dsh/src/sources/kind.ts'
++import type { SourceRegistry } from '../../vendor/dsh/src/sources/registry.ts'
++import type { SetupProblem } from '../../vendor/dsh/src/setup.ts'
+ import { dayAgo, snapshot, type ViewHost } from './records.ts'
+ import { preview } from './text.ts'
+ 

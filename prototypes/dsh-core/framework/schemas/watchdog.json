@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "request_id": {
+      "type": "string",
+      "format": "uuid",
+      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+    },
+    "snapshot_hash": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "assessment": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000
+    },
+    "concerns": {
+      "maxItems": 8,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "ticket_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "turn_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "stalled",
+              "drift",
+              "failure",
+              "needs_information"
+            ]
+          },
+          "evidence": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1500
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "observe",
+              "request_status",
+              "suggest_correction"
+            ]
+          },
+          "instruction": {
+            "type": "string",
+            "maxLength": 1000
+          }
+        },
+        "required": [
+          "ticket_id",
+          "turn_id",
+          "kind",
+          "evidence",
+          "action",
+          "instruction"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "request_id",
+    "snapshot_hash",
+    "assessment",
+    "concerns"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,8 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Codex Superagent</title><link rel="stylesheet" href="/style.css"></head>
+<body><header><div><small>本地协作工作台</small><h1>Codex Superagent</h1></div><div class="controls"><span id="health">正在连接</span><button id="pause" title="暂停安排新工作，当前工作会继续完成">暂停任务</button><button id="exit">退出工作台</button></div></header>
+<div id="lifecycle" role="status" hidden><h2 id="lifecycle-title"></h2><p id="lifecycle-detail"></p><button id="stop-now" hidden>停止当前工作并退出</button></div>
+<main id="workbench"><section class="chat"><div class="bar"><h2>与 Router 对话</h2><select id="project" aria-label="选择项目"></select></div><p class="hint">提出目标、补充要求或指定已有任务继续。角色由 Router 按任务安排。</p><div id="messages" aria-live="polite"></div><form id="compose"><select id="target" aria-label="跟进任务"><option value="">新请求</option></select><textarea id="text" placeholder="告诉 Router 你想完成什么……" maxlength="4000" required></textarea><button type="submit">发送</button><p id="error" role="alert"></p></form></section><aside><div class="bar"><h2>任务与协作</h2><span id="budget"></span></div><div id="tasks"></div><h2>监督与运行状态</h2><pre id="watch"></pre><details><summary>诊断信息</summary><pre id="diagnostics"></pre></details></aside></main>
+<footer>关闭网页后，任务会继续在后台运行。双击桌面图标或点击托盘图标可重新打开；要完全关闭，请选择“退出工作台”。</footer>
+<dialog id="exit-dialog"><h2>还有工作正在执行</h2><p>可以等当前工作完成后退出，也可以现在停止。任务记录都会保留，尚未开始的工作留到下次打开。</p><div class="dialog-actions"><button id="drain">完成当前工作后退出</button><button id="cancel-exit">继续使用</button><button id="exit-now">现在停止并退出</button></div></dialog>
+<script src="/app.js"></script></body></html>

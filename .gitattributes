@@ -1,0 +1,4 @@
+* text=auto eol=lf
+# Preserve pinned upstream bytes for hash verification on Windows.
+prototypes/dsh-core/vendor/** -text
+prototypes/dsh-core/panel/upstream-harness/** -text

@@ -1,0 +1,19 @@
+{
+  "name": "codex-superagent-core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node run-tests.mjs",
+    "test:report": "node run-tests.mjs --json"
+  },
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "dependencies": {
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "vitest": "4.1.8"
+  }
+}

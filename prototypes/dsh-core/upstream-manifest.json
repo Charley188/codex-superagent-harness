@@ -1,0 +1,548 @@
+{
+  "upstream": "deepseek-ai/dsh-superagent-prototype",
+  "commit": "6337fc823ce20251c8de8085948165c81aaa701e",
+  "license": "MIT",
+  "copyright": "2026 DeepSeek Harness Team",
+  "modifications": [],
+  "files": [
+    {
+      "path": "src/core/assignments.ts",
+      "git_blob_sha1": "2264b42b047bcf0035314b7dc4f0e4b32b4da59a",
+      "sha256": "6acf4b858b35d95c875680e39b1e3c41557bbe6d39f65031bb26927289327065",
+      "bytes": 8959,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/core/assignments.ts"
+    },
+    {
+      "path": "src/core/engine.ts",
+      "git_blob_sha1": "c2198adf9c7a10837bec5f4789129bf576e39395",
+      "sha256": "bd9a4caff834859877d1a08ccddebc990d0e1ca568674b80f9d59ce5adcac827",
+      "bytes": 16310,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/core/engine.ts"
+    },
+    {
+      "path": "src/core/errors.ts",
+      "git_blob_sha1": "9c7096aff7e2a278bb1496f2df60eca6d32f0ae6",
+      "sha256": "aa7532a2d1f8c443608683ef1231bf3d81b842f67a87d9b77742b5c76d515009",
+      "bytes": 5722,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/core/errors.ts"
+    },
+    {
+      "path": "src/core/evals.ts",
+      "git_blob_sha1": "35de470e2c241e2b945c955fccc3877f443092f7",
+      "sha256": "38916de24ec6e1a27118dd5d7a7efa67bf7a2dfdbab26fb59d377516269e2fc8",
+      "bytes": 21810,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/core/evals.ts"
+    },
+    {
+      "path": "src/core/ids.ts",
+      "git_blob_sha1": "f3aeab4c86e213ad49703ebae43a87affb432d4c",
+      "sha256": "bc4bc6fd43ea1377087ff2815706c57f0200666aeb4a7711a40489c377f141ab",
+      "bytes": 266,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/core/ids.ts"
+    },
+    {
+      "path": "src/core/index.ts",
+      "git_blob_sha1": "143058bca0490722880a41823890a5f90dd2638c",
+      "sha256": "a5a1cf43f02eafaf520a5bfaf5e76b71ba521d04ee648cfcf12b3843cc474a3e",
+      "bytes": 713,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/core/index.ts"
+    },
+    {
+      "path": "src/core/intake.ts",
+      "git_blob_sha1": "145c72192087afb10c150649780cf0a97ccb3983",
+      "sha256": "323aadefea69436ba23ed2de3bdbaad673d61915be9e239f3233ecf551a74179",
+      "bytes": 3799,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/core/intake.ts"
+    },
+    {
+      "path": "src/core/memory.ts",
+      "git_blob_sha1": "114e8c7140c984152a1e87cffe80c60b28f18819",
+      "sha256": "36cefca987a4e533369a414e52e3fb4754945ae942bb021f8e5cf23c186cf536",
+      "bytes": 2863,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/core/memory.ts"
+    },
+    {
+      "path": "src/core/model.ts",
+      "git_blob_sha1": "577831217329b9bfef404e9ec3492e94ce3e5649",
+      "sha256": "982155fe6a03c887a7ac4475c6d1592d12aa23c5fe3698403c93bbfd6469d44a",
+      "bytes": 19758,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/core/model.ts"
+    },
+    {
+      "path": "src/core/part.ts",
+      "git_blob_sha1": "14d5c6d47b5ec90f9c40a762ae91f4565e4e255d",
+      "sha256": "437c4f4bcc05e836c056cdb45bbf451e55242d62b602b489f4df902be112e73e",
+      "bytes": 4753,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/core/part.ts"
+    },
+    {
+      "path": "src/core/ports.ts",
+      "git_blob_sha1": "08c7a1cccfc69f68178306babf67e4a51fae36f8",
+      "sha256": "0b44f1cd716d64776b0e3ea74a158cf0effd92e763b1b13c7705e766e9225a43",
+      "bytes": 7260,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/core/ports.ts"
+    },
+    {
+      "path": "src/core/reasons.ts",
+      "git_blob_sha1": "59604812de05acc35e8fb3a96557cfaea71aa183",
+      "sha256": "dc29e0c3c52e4ffd6e8f27a618cbe704a83fdbd9c5a1b99a1e0c4184d5c33af4",
+      "bytes": 2233,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/core/reasons.ts"
+    },
+    {
+      "path": "src/core/replies.ts",
+      "git_blob_sha1": "ee5790a21f19bcb2b90f1dfe184f9f33c9f9555b",
+      "sha256": "5a8821a1b9d951d2255709543e0be762c6d3204bca07a77ff17c7bfe82ba66f4",
+      "bytes": 6772,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/core/replies.ts"
+    },
+    {
+      "path": "src/core/stage.ts",
+      "git_blob_sha1": "62bc9e9d54ad80de3156f81585bcf94111cd9b3e",
+      "sha256": "b935012a654d2a68ca20cb27909ddc8dceafb704b56a16a23a08036a546141df",
+      "bytes": 1684,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/core/stage.ts"
+    },
+    {
+      "path": "src/core/tickets.ts",
+      "git_blob_sha1": "21376e17fc896af45fa2c06f7a7d6aa17d6e8aa2",
+      "sha256": "1d9f964ad34b54cbb0403bde16af58851e5e80111177ce73a27b6034e9af940e",
+      "bytes": 27013,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/core/tickets.ts"
+    },
+    {
+      "path": "LICENSE",
+      "git_blob_sha1": "df5ef0e6d9cf2989975742db0a13ad15050ee89b",
+      "sha256": "6d66f91815b720e18cfb2b3552043a0359236aec9a1a6917787900546f6ce550",
+      "bytes": 1078,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/LICENSE"
+    },
+    {
+      "path": "src/app/effects.ts",
+      "git_blob_sha1": "9255cda8f7a63ed0e7ab70bb023a5927fe5218d5",
+      "sha256": "d350590473299398b17c50dd641c72e1995dd95920c5138699491ab77e3ae481",
+      "bytes": 9993,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/app/effects.ts"
+    },
+    {
+      "path": "src/app/passes.ts",
+      "git_blob_sha1": "d0c5a1e2f1da53be48fb8d98b631b961093405e1",
+      "sha256": "79688aeb8c43396b9f122b3feba0ce1c422f1bfbca3b32919cd764a217b67ea9",
+      "bytes": 3101,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/app/passes.ts"
+    },
+    {
+      "path": "src/infra/health.ts",
+      "git_blob_sha1": "75d19fc4225e8687d7b135c5909cc33733f8aa97",
+      "sha256": "dcd84306e795866ffb66ecb5274edf50114ba77052d260b4b530a1a81022d76e",
+      "bytes": 1322,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/infra/health.ts"
+    },
+    {
+      "path": "tests/core-engine.spec.ts",
+      "git_blob_sha1": "733d134a7d60f150a9b53897994a678571859c52",
+      "sha256": "e29358c139a2dbb1a2877e980e043f34cf39bca1905fb10ee14e0b4866bc1a6b",
+      "bytes": 106908,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/tests/core-engine.spec.ts"
+    },
+    {
+      "path": "tests/stage.spec.ts",
+      "git_blob_sha1": "ab49b09c95a2fe621fa3cdcf21ac4c609a7b6f91",
+      "sha256": "3df130eae87d70643f0c924caf66fbca8cb27ced50467e0c7283dee0a39436be",
+      "bytes": 5625,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/tests/stage.spec.ts"
+    },
+    {
+      "path": "tests/passes.spec.ts",
+      "git_blob_sha1": "9f921d15799f104cf6d93978e5dae0327423c9b8",
+      "sha256": "08f2b57d4676672aaa3dd9e5896c1654fe16a6c42ff3323d4d8f3ed3296b5743",
+      "bytes": 2683,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/tests/passes.spec.ts"
+    },
+    {
+      "path": "src/app/store.ts",
+      "git_blob_sha1": "6dcb8b09d9cab2b60b6b7725ee2982ec3dc502ed",
+      "sha256": "c124de893fbe260571b18b0ac4875bc7647e44e72062ba38b02c809e0012d583",
+      "bytes": 21067,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/app/store.ts"
+    },
+    {
+      "path": "src/app/store-read.ts",
+      "git_blob_sha1": "4ffd045b2a0c0cd979c79954df319f1c0adcaf51",
+      "sha256": "610916ed23ce62bd60c6ebdfa4f59510b1f8f842399fff0dac6aeed96a9c93ef",
+      "bytes": 8266,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/app/store-read.ts"
+    },
+    {
+      "path": "src/app/versions.ts",
+      "git_blob_sha1": "9289cc37f3e076ca8fa1a8ed4682bb8f4f22650b",
+      "sha256": "9ed9929bc48fff940457f4494f266c1e5b8f83dc8f993e9c2ba622c0eb89a32f",
+      "bytes": 1900,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/app/versions.ts"
+    },
+    {
+      "path": "src/kv.ts",
+      "git_blob_sha1": "e7ed6953eb1acace9035533562e3219b2e188d82",
+      "sha256": "c6dd38e1ef7b19ae5a0440e11c4a713103a318e0df3fc2fc3b12cbd9a8f4eea7",
+      "bytes": 4413,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/kv.ts"
+    },
+    {
+      "path": "src/policy.ts",
+      "git_blob_sha1": "b6a66cfd102e25a56e15c7aaf0be26f4520d6ab8",
+      "sha256": "01cff8c333b341ee2943e644046f0da3ed9675af1c0029489b5f4bc8226d293d",
+      "bytes": 19082,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/policy.ts"
+    },
+    {
+      "path": "src/limits.ts",
+      "git_blob_sha1": "75bb2b54656d4f98271128a509a4d90d83390c87",
+      "sha256": "78e4171e6624580038996e3931888cd1cdbefa5c0e1035235c4dffdbb4af236f",
+      "bytes": 415,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/limits.ts"
+    },
+    {
+      "path": "src/admission.ts",
+      "git_blob_sha1": "5a80b52585e5c90792a7ab15137b9b81c8fff221",
+      "sha256": "62f54fe63762a347e54cec2aed098e1b28a0a547a4133b5e3fc2e91a10b94afd",
+      "bytes": 1066,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/admission.ts"
+    },
+    {
+      "path": "src/setup.ts",
+      "git_blob_sha1": "ecae26e32045b084833bd93c16c4317865910263",
+      "sha256": "eae13507edd63c331ccde9e979835202e742378cca2eb35fcd12af60e48fc6f2",
+      "bytes": 2715,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/setup.ts"
+    },
+    {
+      "path": "src/infra/text.ts",
+      "git_blob_sha1": "a8918446f21d4bf7043ebc13b67dee9e7223d3fb",
+      "sha256": "70c9edb98139e3091d5e63d2ccf31d308c045f0510087a87517fbb3635cdd9e7",
+      "bytes": 1300,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/infra/text.ts"
+    },
+    {
+      "path": "src/infra/environment.ts",
+      "git_blob_sha1": "b6d92c33da1afc3291bcb162ab5df520ff444d72",
+      "sha256": "413680e755ed36b74157f364a38cb5dbe81e4af0db0fa88c8376c682e2282a7c",
+      "bytes": 11150,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/infra/environment.ts"
+    },
+    {
+      "path": "src/infra/commands.ts",
+      "git_blob_sha1": "120f5a47dc379c01ece3908e1d50c44bd5591c0a",
+      "sha256": "9d7593c5022e0c1813731c1f1cd8471b1536b0b5f42974a08ef2b2930c1e62b2",
+      "bytes": 7652,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/infra/commands.ts"
+    },
+    {
+      "path": "tests/effects.spec.ts",
+      "git_blob_sha1": "c022237c9c36976fb900521d5692914a412a6029",
+      "sha256": "2f43ec3af1da76c933aba941f4bf6525c973308646cd0ea9811bb9cc5b0ffb3b",
+      "bytes": 10307,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/tests/effects.spec.ts"
+    },
+    {
+      "path": "tests/fixtures/async.ts",
+      "git_blob_sha1": "2c832fd4d54ff58e3eb7818bab5bbc154e1edab6",
+      "sha256": "de7b1818f2e7fbd09bc014f12cd72d8d1931e5a86e2408c97a1bcd4dbb02447f",
+      "bytes": 915,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/tests/fixtures/async.ts"
+    },
+    {
+      "path": "src/app/tools/main.ts",
+      "git_blob_sha1": "d499004d0a30ea52ba172f611700d821d9f627a3",
+      "sha256": "88603eb5a94c67e93141e07bd09bde85d65f980a1f42503c53ab9c22ec5c538d",
+      "bytes": 20366,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/app/tools/main.ts"
+    },
+    {
+      "path": "src/app/tools/tool.ts",
+      "git_blob_sha1": "e63e62b65448ffa7f1d8d49089d5aa829661e2a5",
+      "sha256": "172dd8f1a3da82b8a6cfe966befd5204476cc44ac0a4d7fe278518e970b7f054",
+      "bytes": 1984,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/app/tools/tool.ts"
+    },
+    {
+      "path": "src/app/assessment.ts",
+      "git_blob_sha1": "11d2f5b6c9ed68b932f03da5d97a2c03741a2cc3",
+      "sha256": "5b2c2cf71093fd560f1f3a57cc476f122241b780fbeb2f6007e727943142b545",
+      "bytes": 20781,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/app/assessment.ts"
+    },
+    {
+      "path": "prompts/orchestrator.md",
+      "git_blob_sha1": "f02cc04b04d8b503349828f2d93a5d5dfca097dc",
+      "sha256": "0d3a2eda1156ebbc841987f22cd930a16934defef96e8a6eff5210b8eee0edf9",
+      "bytes": 1021,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/prompts/orchestrator.md"
+    },
+    {
+      "path": "prompts/dispatch.md",
+      "git_blob_sha1": "5e02ffdeb71e188541c97ddc6bd057a78e333cbd",
+      "sha256": "c34fce83efd114cb5bb725673f1249f092b4e57205cac7cdc45d51160d94ec2a",
+      "bytes": 6814,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/prompts/dispatch.md"
+    },
+    {
+      "path": "docs/003-execution.md",
+      "git_blob_sha1": "6cb33a88c5d728dd4c9e72cae5f8d5c22fd82d02",
+      "sha256": "049aa22a717f75b9dec4cd6969356db6f736c127de4501c3ce1f6d846217f6eb",
+      "bytes": 17389,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/docs/003-execution.md"
+    },
+    {
+      "path": "docs/007-architecture.md",
+      "git_blob_sha1": "184ea543da47267f3f81285e38fb5355dcc3bcdd",
+      "sha256": "e3747665587fdf88b28d4e9c1a1f8ac40cbc2c65a9999be1fce14b69ec44d748",
+      "bytes": 70507,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/docs/007-architecture.md"
+    },
+    {
+      "path": "src/client/api.ts",
+      "git_blob_sha1": "f58f44ee1ae3124a2796ded433f7d8a1115562da",
+      "sha256": "800b0347183c39601b8b7cd33607dee2538eb8da5feb5f1c7e13a1a7c2268f36",
+      "bytes": 8200,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/client/api.ts"
+    },
+    {
+      "path": "src/client/app.tsx",
+      "git_blob_sha1": "3263005de9499178bb763468bd3219a66fc7b800",
+      "sha256": "23cca247e0a67fb581df6fc517522ccf0026a4897cda109c9e57c367cb2b1051",
+      "bytes": 12026,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/client/app.tsx"
+    },
+    {
+      "path": "src/client/client.css",
+      "git_blob_sha1": "7a1bf77660ef904682683abff0b236e6b9c0e80c",
+      "sha256": "8de57c24e782831b713dd5221900ee3a45172285f8598b80b27797cd9799db32",
+      "bytes": 40558,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/client/client.css"
+    },
+    {
+      "path": "src/client/controls.tsx",
+      "git_blob_sha1": "8f894da5674108721f3056c8628f49cc22467235",
+      "sha256": "be4d4eae4e1d811c027c04fdebfa55ef40e38d6a5b0711cfb2b0d30a9b646d79",
+      "bytes": 14522,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/client/controls.tsx"
+    },
+    {
+      "path": "src/client/css.d.ts",
+      "git_blob_sha1": "f65af49ade9b409df5133be5959a6ee2a9816fb4",
+      "sha256": "7338d8afb4dd785405772c7e5265268efde3e2607b2ae04619c443ebb5a346b7",
+      "bytes": 130,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/client/css.d.ts"
+    },
+    {
+      "path": "src/client/deployment.tsx",
+      "git_blob_sha1": "a345811d581f61f3fbcd2eaf850a481eb1d16dce",
+      "sha256": "c37ebd5a24d0319a28d3d98a76dde23d9694b0fad4a7900df0eff85de82afb4b",
+      "bytes": 6213,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/client/deployment.tsx"
+    },
+    {
+      "path": "src/client/draft.tsx",
+      "git_blob_sha1": "4f0d1fcf8e6dc1f9ec0b0b78ec3de5709c25f9f3",
+      "sha256": "e29c5acfd0edacb022bdffe13f6225d2a824fbd01af6554120567dd7beede4d1",
+      "bytes": 12352,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/client/draft.tsx"
+    },
+    {
+      "path": "src/client/eval.tsx",
+      "git_blob_sha1": "9eac0ef290e49bbc0a9e26f0b778dff545ae354c",
+      "sha256": "44350064a4a7649e418ea5db25d98a58e31f77b8171393589c5b4644d03b8cc8",
+      "bytes": 13751,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/client/eval.tsx"
+    },
+    {
+      "path": "src/client/execution.tsx",
+      "git_blob_sha1": "8c018387b4f7c66b7a5ccfb1f7bf6fcf0864ed15",
+      "sha256": "8d9200aab40f092972234fc5712a78f1db0c1ad581517d574f8b8143c289959c",
+      "bytes": 8237,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/client/execution.tsx"
+    },
+    {
+      "path": "src/client/index.tsx",
+      "git_blob_sha1": "fb0b84ba920155dd72f5d9376afa97faf0384fe8",
+      "sha256": "6a7e5a0295ecbbd047dbb619e0cdf9d1489a46c8dfcc56dbfd1cfe6f6d866529",
+      "bytes": 3626,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/client/index.tsx"
+    },
+    {
+      "path": "src/client/locales.ts",
+      "git_blob_sha1": "d81d0d4e9c7ca3f2b3cf8561be2c08e4ef24452d",
+      "sha256": "d172c86d672b9244effe3590bc7c25ac71b80d3ccbb7d6c5fe76848ce31eba12",
+      "bytes": 73161,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/client/locales.ts"
+    },
+    {
+      "path": "src/client/markdown.ts",
+      "git_blob_sha1": "23a4e497bd8b7a7d3b9fc225c6d6286212152394",
+      "sha256": "5993337bd0b5c9672eab57628e1f94ecb6db5be4f1e13174d7f6336d60eb8a51",
+      "bytes": 2285,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/client/markdown.ts"
+    },
+    {
+      "path": "src/client/marks.ts",
+      "git_blob_sha1": "c6fd27d6b3c7b74cf1d8845971dfa5eb3ae98597",
+      "sha256": "e7e05436be442342fa6a2ba43a702563a88a46cdd07da50760d8b5ecd2fc06f6",
+      "bytes": 3809,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/client/marks.ts"
+    },
+    {
+      "path": "src/client/overview.tsx",
+      "git_blob_sha1": "721a4376b57d1029a27788172682a9f12e2d61ff",
+      "sha256": "316efe735bdfd6e109483916a5a2ba2f78a10618eff0caff59389af541c98f48",
+      "bytes": 7050,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/client/overview.tsx"
+    },
+    {
+      "path": "src/client/prompt-config.ts",
+      "git_blob_sha1": "474bae88620b18ac078953ce5ef3b1e41b5484a3",
+      "sha256": "148a3c6ecb0e9fba57812135ab4a812a70be168481cd3a3ca083085da005f2d3",
+      "bytes": 5911,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/client/prompt-config.ts"
+    },
+    {
+      "path": "src/client/prompts.tsx",
+      "git_blob_sha1": "aa392c24fb011c1d5e7f9c3225fce00cb6871923",
+      "sha256": "ddc92a0db7d994c019e2efcb707dbbc04acb53e421ca04e9878d52de83ce6eff",
+      "bytes": 20391,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/client/prompts.tsx"
+    },
+    {
+      "path": "src/client/provider.tsx",
+      "git_blob_sha1": "ec5bb57d4cdc0cca19de6436b4d2ccdbdc9ab2da",
+      "sha256": "5639db28e87c1fa0752a30b5280c2e492685bea0593809f72c975b5274d12a8f",
+      "bytes": 5419,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/client/provider.tsx"
+    },
+    {
+      "path": "src/client/route.ts",
+      "git_blob_sha1": "61413b6229a160a9d9f8cb2b302b7d2a553dc430",
+      "sha256": "457b3cf37c9678c085cf4685ae412ff92bc5510b4a5401e805e4762ad12a3a4c",
+      "bytes": 4361,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/client/route.ts"
+    },
+    {
+      "path": "src/client/rows.tsx",
+      "git_blob_sha1": "54fcd7423075b8a86e0f2c3c93e2f96156f23e41",
+      "sha256": "905d0859ac8f7d7b6bf9375b30a9c1bcf2744c11f171e6e9070c6b0328490458",
+      "bytes": 8092,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/client/rows.tsx"
+    },
+    {
+      "path": "src/client/settings-kit.tsx",
+      "git_blob_sha1": "4a36a6521d011392e593ef58e7bcd2fd0721d26c",
+      "sha256": "4a75031188c08fb54fd8f45725a3530b3005920412004f5d9817757a72eb87a9",
+      "bytes": 17921,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/client/settings-kit.tsx"
+    },
+    {
+      "path": "src/client/settings.tsx",
+      "git_blob_sha1": "bad58c370f9d4899c5e403da9d59712c38d96d24",
+      "sha256": "cd1a57e27ac0d8d3a968c6abb0093ddd48a2b5e36b3d16fcb1f9be3930885ee4",
+      "bytes": 2019,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/client/settings.tsx"
+    },
+    {
+      "path": "src/client/source.tsx",
+      "git_blob_sha1": "94143359f0933bb298e3a6742f4448ee9d6ed5a1",
+      "sha256": "0e0d24f6b0695283d47f2127f71ab132533c64e21ac772f1f033a9ef77d29a5d",
+      "bytes": 9209,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/client/source.tsx"
+    },
+    {
+      "path": "src/client/text.ts",
+      "git_blob_sha1": "573692299d011b60183e0aca20ed278da198f119",
+      "sha256": "b5c4a264ea799f40598b66d175b434dcb37e2033cddffad8f3e0c8ec1e080c92",
+      "bytes": 3972,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/client/text.ts"
+    },
+    {
+      "path": "src/client/thread.tsx",
+      "git_blob_sha1": "fdfb5285f0d5b92ced68fba5ca1523a91c54b1de",
+      "sha256": "6870694d97c1c1e75bbd43f0ed7efbf6e6eba50a19a27c60fef7b052a5a979f6",
+      "bytes": 10744,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/client/thread.tsx"
+    },
+    {
+      "path": "src/client/ticket.tsx",
+      "git_blob_sha1": "f240a9532798cab51e0f65d4463b8efdb62ac38b",
+      "sha256": "0d78ec9067cb1e11169ae283b038ffa43859fe2380557a90ea980a492f28bc73",
+      "bytes": 13342,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/client/ticket.tsx"
+    },
+    {
+      "path": "src/client/trigger.tsx",
+      "git_blob_sha1": "62402fe00fa0ee003de6662e990fd0029aa6588a",
+      "sha256": "934de63606db7721bbd18b829900a3b158f40330ad51b5223346477fba0794aa",
+      "bytes": 1401,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/client/trigger.tsx"
+    },
+    {
+      "path": "src/client/widgets.tsx",
+      "git_blob_sha1": "9ddb0f5649fca6edca9da3be8823cf5a927dc62f",
+      "sha256": "6aa900da1203bb7c05a81f1aa8f98376ef6c5edbc6b8f6adce2719d18b1995f4",
+      "bytes": 8486,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/client/widgets.tsx"
+    },
+    {
+      "path": "src/app/api.ts",
+      "git_blob_sha1": "bc71d625db9ed7b02f4bb26af75b6c15ff132179",
+      "sha256": "ceb0c76cb2d8680e2be4edf0f6ac42c90e6a4ff78e0e14ce4aa277357606ff04",
+      "bytes": 3544,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/app/api.ts"
+    },
+    {
+      "path": "src/sources/host.ts",
+      "git_blob_sha1": "20f2088cbdfc28c9d255aa6675d3e96a49d0f1d5",
+      "sha256": "b07998dad9194319a95a9436084cf1612aef9c4c6de22288cfa04258bbfbb1ce",
+      "bytes": 4487,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/sources/host.ts"
+    },
+    {
+      "path": "src/app/views/overview.ts",
+      "git_blob_sha1": "66f0a77ce4db675fa3c371333854502660fee805",
+      "sha256": "c8eb087eb5e3586e924ff5df659aa1535d64e6723f2f5ffa8e721f4abbfabef8",
+      "bytes": 5585,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/app/views/overview.ts"
+    },
+    {
+      "path": "src/app/views/tickets.ts",
+      "git_blob_sha1": "e5b18bbb4ca2389134207f11e4a70ddafdac85e4",
+      "sha256": "7345a63859a81e525ba4341d8a7091053b8825f73215a028e144cd0dc8da5ccc",
+      "bytes": 6421,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/app/views/tickets.ts"
+    },
+    {
+      "path": "src/app/views/threads.ts",
+      "git_blob_sha1": "8119de4e14c90f84493254dfb619f341fe691c94",
+      "sha256": "e0a0caa5364754a7d45426cafaacf315bda5124e39171f90fe67a26849931b5f",
+      "bytes": 6306,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/app/views/threads.ts"
+    },
+    {
+      "path": "src/app/views/records.ts",
+      "git_blob_sha1": "74dab2eeeab831ae17d948c6c6da858da18ebdf1",
+      "sha256": "5ed48ab5dfaaa729f0520c1dfc30d962f6a716d11d71088fd43ce9bedaa3cd39",
+      "bytes": 14333,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/app/views/records.ts"
+    },
+    {
+      "path": "src/app/views/sources.ts",
+      "git_blob_sha1": "08c9728640a896abae662c5e4534622ef2b4da42",
+      "sha256": "d81bbdba84c2a7bc49a53c95b0b96a340cc2231135f065eff59da648d0ec6798",
+      "bytes": 4594,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/app/views/sources.ts"
+    },
+    {
+      "path": "src/app/views/text.ts",
+      "git_blob_sha1": "1435499c7837fb2ce510b58346f5f020d88abd22",
+      "sha256": "aa577b5171ae15dc3905207ed7dbe36c6c1a3567d07599a81bc8b0bb28413aa6",
+      "bytes": 2678,
+      "url": "https://github.com/deepseek-ai/dsh-superagent-prototype/blob/6337fc823ce20251c8de8085948165c81aaa701e/src/app/views/text.ts"
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "repository": "deepseek-ai/deepseek-harness",
+  "commit": "ce7073d51254c26cd63b22a60835b8f948deb447",
+  "license": "MIT",
+  "files": [
+    {
+      "path": "LICENSE",
+      "sha256": "ebb4f09972aee8608be255debaf78451a68e95c290f55c240dec2ecfa16ea6be",
+      "bytes": 1065
+    },
+    {
+      "path": "packages/client/ui-sidebar/src/client/SidebarRoot.module.css",
+      "sha256": "9477109f9d5561710a672756b91ed4986521d27374b8a05f3dccb4fcc4075583",
+      "bytes": 18370
+    },
+    {
+      "path": "packages/client/ui-conversation/src/client/skeleton/ConversationRoot.module.css",
+      "sha256": "4b00b8686307251fc1d740ff0e2356ad9bc57ac1fcff34e2918162f1e51f41e9",
+      "bytes": 20893
+    },
+    {
+      "path": "packages/client/ui-conversation/src/client/skeleton/ConversationHeader.tsx",
+      "sha256": "4d8eb123dfcda64d1930ec59402f72b1fcda1f6c63197243a33c52069c57ab94",
+      "bytes": 1311
+    },
+    {
+      "path": "packages/client/ui-conversation/src/client/skeleton/ConversationPanel.tsx",
+      "sha256": "d7b63905cb18887648b5cbb1d09d85cae6ec97a0a9e70299602363c56f325b29",
+      "bytes": 564
+    },
+    {
+      "path": "packages/client/ui-conversation/src/client/contract/snapshot.ts",
+      "sha256": "0c2abe05175c503093ae1e4c94ff85acf3f613df913bf68a0611fbc9e525abb7",
+      "bytes": 1453
+    },
+    {
+      "path": "packages/client/ui-conversation/src/client/skeleton/InputBar.module.css",
+      "sha256": "d1de49be39926d3cb009fb0f23ad6221c62704bd2706739ffc74de33389a70d8",
+      "bytes": 13675
+    }
+  ]
+}

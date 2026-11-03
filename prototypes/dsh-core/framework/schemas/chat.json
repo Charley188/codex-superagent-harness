@@ -1,0 +1,1 @@
+{"type":"object","additionalProperties":false,"properties":{"request_id":{"type":"string"},"snapshot_hash":{"type":"string"},"reply":{"type":"string"}},"required":["request_id","snapshot_hash","reply"]}
